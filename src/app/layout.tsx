@@ -6,9 +6,16 @@ import ClientProvider from "@/components/providers/ClientProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
 
+const title = "Connect 4 Together";
+const description = "Puissance 4 jusqu'à 4 joueurs en simultanés !";
+
 export const metadata: Metadata = {
-    title: "Connect 4 Together",
-    icons: "./logo.webp"
+    title,
+    description,
+    icons: "./logo.webp",
+    openGraph: {
+        title, description
+    }
 };
 
 export default function RootLayout({
