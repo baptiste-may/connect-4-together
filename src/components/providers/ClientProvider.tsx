@@ -17,7 +17,7 @@ export default function ClientProvider({children}: {
     const [client, setClient] = useState<undefined | Client>(undefined);
 
     useEffect(() => {
-        const client = new Client(`ws://${window.location.host}`);
+        const client = new Client(`${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`);
         client.create("CheckConnection").then(room => {
             room.leave().then(() => setClient(client));
         }).catch(() => {

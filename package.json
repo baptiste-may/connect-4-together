@@ -1,6 +1,6 @@
 {
   "name": "connect-4-together",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "scripts": {
     "dev": "nodemon src/main.ts",
