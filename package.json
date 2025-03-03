@@ -1,0 +1,47 @@
+{
+  "name": "connect-4-together",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon src/main.ts",
+    "build": "next build",
+    "start": "NODE_ENV=production tsx src/main.ts",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@colyseus/monitor": "^0.15.8",
+    "@colyseus/schema": "^2.0.36",
+    "@colyseus/ws-transport": "^0.15.3",
+    "@faker-js/faker": "^9.4.0",
+    "@types/express": "^5.0.0",
+    "colyseus": "^0.15.57",
+    "colyseus.js": "^0.15.26",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-basic-auth": "^1.2.1",
+    "lucide-react": "^0.477.0",
+    "next": "15.1.6",
+    "react": "^19.0.0",
+    "react-daisyui": "^5.0.5",
+    "react-dom": "^19.0.0",
+    "tsx": "^4.19.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "daisyui": "^4.12.23",
+    "eslint": "^9.20.0",
+    "eslint-config-next": "15.1.6",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
