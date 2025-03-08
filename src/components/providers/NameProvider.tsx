@@ -3,7 +3,7 @@
 import {fakerFR} from "@faker-js/faker";
 import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 import {Button, Card, Hero, Input, Loading} from "react-daisyui";
-import {LogIn, UserCheck} from "lucide-react";
+import {Telescope, UserCheck} from "lucide-react";
 import {useToast} from "@/components/providers/ToastProvider";
 
 const NameContext = createContext<undefined | null | {
@@ -54,7 +54,7 @@ export default function NameProvider({children}: {
                                 if (inputName === "") return;
                                 customSetName(inputName);
                             }}>
-                                <LogIn/>
+                                <Telescope/>
                                 {"C'est parti !"}
                             </Button>
                         </Card.Body>
