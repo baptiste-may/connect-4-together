@@ -1,6 +1,6 @@
 import {Alert} from "react-daisyui";
 import {useGameData} from "@/components/Game";
-import {Award, Check, Crown, Frown, Loader, Lock, LucideIcon, Pause, Play} from "lucide-react";
+import {Award, CircleCheck, Crown, Frown, Loader, Lock, LucideIcon, Pause, Play} from "lucide-react";
 
 function Component({status, Icon, title, subtitle}: {
     status?: "success" | "info" | "warning" | "error";
@@ -48,7 +48,7 @@ export default function Info() {
             subtitle="Vous pouvez tout de même observer la partie"
         />;
         return <Component
-            status="success" Icon={Check}
+            status="success" Icon={CircleCheck}
             title="Prêt à commencer !"
             subtitle="Vous pouvez chosir votre couleur."
         />;

@@ -145,8 +145,8 @@ export default function Game({room, onLeaveRoom}: {
             <div className="relative flex gap-4 w-screen h-screen lg:p-4">
                 <Drawer side={<Indicator
                     className="flex flex-col lg:gap-4 h-full bg-base-200 lg:bg-transparent overflow-auto">
-                    <Indicator.Item className="lg:hidden -translate-x-2 translate-y-2">
-                        <Button onClick={toggleDrawer} color="accent" size="sm">
+                    <Indicator.Item className="lg:hidden relative sm:absolute translate-x-2 sm:-translate-x-2 translate-y-2">
+                        <Button onClick={toggleDrawer} color="accent" className="w-[calc(100%_-_16px)] sm:w-12" shape="square">
                             <X/>
                         </Button>
                     </Indicator.Item>
@@ -154,7 +154,7 @@ export default function Game({room, onLeaveRoom}: {
                 </Indicator>}
                         className="lg:drawer-open h-full [&>div]:h-screen lg:[&>div]:h-[calc(100vh_-_32px)] overflow-y-auto"
                         open={drawerOpen} onClickOverlay={toggleDrawer}>
-                    <Button className="absolute top-4 left-4 lg:hidden" onClick={toggleDrawer} color="accent" size="sm">
+                    <Button className="absolute top-2 left-2 lg:hidden" onClick={toggleDrawer} color="accent" shape="square">
                         <ChevronRight/>
                     </Button>
                     <Content/>
