@@ -1,6 +1,6 @@
 import {Alert} from "react-daisyui";
 import {useGameData} from "@/components/Game";
-import {Award, CircleCheck, Crown, Frown, Loader, Lock, LucideIcon, Pause, Play} from "lucide-react";
+import {Award, Ban, CircleCheck, Crown, Frown, Loader, Lock, LucideIcon, Pause, Play} from "lucide-react";
 
 function Component({status, Icon, title, subtitle}: {
     status?: "success" | "info" | "warning" | "error";
@@ -21,7 +21,7 @@ function Component({status, Icon, title, subtitle}: {
 
 export default function Info() {
 
-    const {isYourTurn, yourColor, isAPlayer, nbPlayers, winner, getName, players} = useGameData();
+    const {isYourTurn, yourColor, isAPlayer, nbPlayers, winner, getName, players, grid} = useGameData();
 
     if (winner !== -1) {
         if (winner === yourColor) return <Component
@@ -53,6 +53,12 @@ export default function Info() {
             subtitle="Vous pouvez chosir votre couleur."
         />;
     }
+
+    if (!grid.map(row => row.includes(-1)).includes(true)) return <Component
+        status="warning"
+        title="Partie nulle !"
+        subtitle="Vous avez fait une égalité !"
+        Icon={Ban}/>;
 
     if (nbPlayers < 2) return <Component
         status="warning" Icon={Loader}

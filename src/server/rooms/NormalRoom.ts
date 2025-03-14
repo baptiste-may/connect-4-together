@@ -109,7 +109,7 @@ export class NormalRoom extends Room<State> {
         this.onMessage("vote-skip", (client) => {
             if (!this.state.players.includes(client.id)) return;
             this.state.votedForSkip.add(client.id);
-            if (this.state.votedForSkip.size === this.getNbPlayers()) {
+            if (this.state.votedForSkip.size >= this.getNbPlayers()) {
                 for (let i = 0; i < 7 * 6; i++) {
                     this.state.board[i] = -1;
                 }
@@ -156,6 +156,7 @@ export class NormalRoom extends Room<State> {
      */
     async onLeave(client: Client) {
         this.state.spectators.delete(client.id);
+        this.state.votedForSkip.delete(client.id);
         const index = this.state.players.indexOf(client.id);
         if (index !== -1) {
             this.state.players[index] = "";

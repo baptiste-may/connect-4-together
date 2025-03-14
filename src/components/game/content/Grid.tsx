@@ -1,33 +1,14 @@
 import Case from "@/components/game/content/Case";
 import {useEffect, useState} from "react";
 import {useGameData} from "@/components/Game";
+import _ from "underscore";
 
 export default function Grid() {
 
-    const {room, yourColor, isYourTurn, nbPlayers, winner} = useGameData();
+    const {room, yourColor, isYourTurn, nbPlayers, winner, grid} = useGameData();
 
-    const [grid, setGrid] = useState<number[][]>([
-        [-1, -1, -1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1, -1, -1],
-        [-1, -1, -1, -1, -1, -1, -1],
-    ]);
     const [selectedColumn, setSelectedColumn] = useState<null | number>(null);
     const [selectedCase, setSelectedCase] = useState<null | [number, number]>(null);
-
-    useEffect(() => {
-        room.state.board.onChange((color: number, id: number) => {
-            const x = id % 7;
-            const y = Math.floor(id / 7);
-            setGrid(prev => {
-                const newGrid = [...prev];
-                newGrid[y][x] = color;
-                return newGrid;
-            });
-        });
-    }, [room]);
 
     useEffect(() => {
         if (selectedColumn === null) return setSelectedCase(null);
@@ -54,7 +35,7 @@ export default function Grid() {
                 setSelectedColumn(null);
                 room.send("play-piece", selectedColumn);
             }}>
-                {Array(7).keys().toArray().map(i =>
+                {_.range(7).map(i =>
                     <div key={i} className="w-full h-full"
                          onMouseEnter={() => {
                              setSelectedColumn(i);

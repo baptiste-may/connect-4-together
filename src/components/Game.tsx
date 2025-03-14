@@ -26,6 +26,7 @@ const GameContext = createContext<undefined | {
     isAPlayer: boolean;
     votedForSkip: Set<string>;
     isPrivate: boolean;
+    grid: number[][];
 }>(undefined);
 
 export default function Game({room, onLeaveRoom}: {
@@ -46,6 +47,14 @@ export default function Game({room, onLeaveRoom}: {
     const [drawerOpen, setDrawerOpen] = useState(true);
     const [votedForSkip, setVotedForSkip] = useState<Set<string>>(new Set<string>());
     const [isPrivate, setIsPrivate] = useState(true);
+    const [grid, setGrid] = useState<number[][]>([
+        [-1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1],
+    ]);
 
     useEffect(() => {
         room.state.listen("host", (value: string) => setHost(value));
@@ -107,6 +116,16 @@ export default function Game({room, onLeaveRoom}: {
         }));
 
         room.onLeave(() => onLeaveRoom(false));
+
+        room.state.board.onChange((color: number, id: number) => {
+            const x = id % 7;
+            const y = Math.floor(id / 7);
+            setGrid(prev => {
+                const newGrid = [...prev];
+                newGrid[y][x] = color;
+                return newGrid;
+            });
+        });
     }, [room, onLeaveRoom]);
 
     const getName = (id: string) => {
@@ -140,7 +159,8 @@ export default function Game({room, onLeaveRoom}: {
                 nbPlayers,
                 isAPlayer,
                 votedForSkip,
-                isPrivate
+                isPrivate,
+                grid
             }}>
             <div className="relative flex gap-4 w-screen h-screen lg:p-4">
                 <Drawer side={<Indicator

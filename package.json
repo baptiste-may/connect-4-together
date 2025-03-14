@@ -1,6 +1,6 @@
 {
   "name": "connect-4-together",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "dev": "nodemon src/main.ts",
@@ -14,6 +14,7 @@
     "@colyseus/ws-transport": "^0.15.3",
     "@faker-js/faker": "^9.4.0",
     "@types/express": "^5.0.0",
+    "@types/underscore": "^1.13.0",
     "colyseus": "^0.15.57",
     "colyseus.js": "^0.15.26",
     "dotenv": "^16.4.7",
@@ -25,6 +26,7 @@
     "react-daisyui": "^5.0.5",
     "react-dom": "^19.0.0",
     "tsx": "^4.19.2",
+    "underscore": "^1.13.7",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
