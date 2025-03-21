@@ -28,7 +28,7 @@ export default function Page() {
             if (reconnectionToken !== null) {
                 client.reconnect(reconnectionToken)
                     .then(room => setCurrentRoom(room))
-                    .catch(err => localStorage.removeItem("reconnectionToken"));
+                    .catch(() => localStorage.removeItem("reconnectionToken"));
             }
         }
         else localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);

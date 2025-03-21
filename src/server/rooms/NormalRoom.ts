@@ -166,7 +166,8 @@ export class NormalRoom extends Room<State> {
         try {
             if (consented) throw new Error("Consented leave");
             await this.allowReconnection(client, 5);
-        } catch (e) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (_) {
             this.state.spectators.delete(client.id);
             this.state.votedForSkip.delete(client.id);
             const index = this.state.players.indexOf(client.id);
