@@ -1,7 +1,7 @@
 "use client";
 
 import {useName} from "@/components/providers/NameProvider";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Room} from "colyseus.js";
 import {useClient} from "@/components/providers/ClientProvider";
 import Game from "@/components/Game";
@@ -21,6 +21,18 @@ export default function Page() {
     const [currentRoom, setCurrentRoom] = useState<undefined | Room>(undefined);
     const [joinModalOpen, setJoinModalOpen] = useState(false);
     const [roomsModalOpen, setRoomsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (currentRoom === undefined) {
+            const reconnectionToken = localStorage.getItem("reconnectionToken");
+            if (reconnectionToken !== null) {
+                client.reconnect(reconnectionToken)
+                    .then(room => setCurrentRoom(room))
+                    .catch(err => localStorage.removeItem("reconnectionToken"));
+            }
+        }
+        else localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);
+    }, [currentRoom]);
 
     return (
         <>
@@ -90,10 +102,12 @@ export default function Page() {
                 </Hero.Content>
             </Hero> : <Game room={currentRoom} onLeaveRoom={(intentional: boolean) => {
                 currentRoom.removeAllListeners();
-                if (intentional) currentRoom.leave().then(() => {
-                    setCurrentRoom(undefined);
-                });
-                else setCurrentRoom(undefined);
+                if (intentional) {
+                    localStorage.removeItem("reconnectionToken");
+                    currentRoom.leave().then(() => {
+                        setCurrentRoom(undefined);
+                    })
+                } else setCurrentRoom(undefined);
             }}/>}
         </>
     );

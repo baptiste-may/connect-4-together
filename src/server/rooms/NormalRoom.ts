@@ -1,6 +1,7 @@
 import {Client, Room} from "colyseus";
 import {ArraySchema, MapSchema, Schema, SetSchema, type} from "@colyseus/schema";
 import {ChatMessage} from "@/server/utils/Chat";
+import filter from "leo-profanity";
 
 /**
  * Represents the state of the room.
@@ -83,7 +84,14 @@ export class NormalRoom extends Room<State> {
         });
 
         this.onMessage("send-message", (client, message) => {
-            this.state.chatMessages.push(new ChatMessage(message, client.id));
+            let cleanedMessage = message;
+            filter.loadDictionary("fr");
+            cleanedMessage = filter.clean(cleanedMessage);
+            filter.loadDictionary("en");
+            cleanedMessage = filter.clean(cleanedMessage);
+            filter.loadDictionary("ru");
+            cleanedMessage = filter.clean(cleanedMessage);
+            this.state.chatMessages.push(new ChatMessage(cleanedMessage, client.id));
         });
 
         this.onMessage("join-color", (client, message) => {
@@ -151,23 +159,28 @@ export class NormalRoom extends Room<State> {
 
     /**
      * Handles a client leaving the room.
-     * Updates player list and assigns new host if necessary.
      * @param client The client leaving the room.
+     * @param consented Whether the client left the room intentionally.
      */
-    async onLeave(client: Client) {
-        this.state.spectators.delete(client.id);
-        this.state.votedForSkip.delete(client.id);
-        const index = this.state.players.indexOf(client.id);
-        if (index !== -1) {
-            this.state.players[index] = "";
-            if (index === this.state.turn) this.newTurn();
-        }
-        if (this.state.host === client.id) {
-            const players = this.state.players.filter(p => p !== "");
-            this.state.host = players.length > 0 ? players[0] : this.state.spectators.toArray()[0];
-            await this.setMetadata({
-                host: this.state.playerNames.get(this.state.host)
-            });
+    async onLeave(client: Client, consented: boolean) {
+        try {
+            if (consented) throw new Error("Consented leave");
+            await this.allowReconnection(client, 5);
+        } catch (e) {
+            this.state.spectators.delete(client.id);
+            this.state.votedForSkip.delete(client.id);
+            const index = this.state.players.indexOf(client.id);
+            if (index !== -1) {
+                this.state.players[index] = "";
+                if (index === this.state.turn) this.newTurn();
+            }
+            if (this.state.host === client.id) {
+                const players = this.state.players.filter(p => p !== "");
+                this.state.host = players.length > 0 ? players[0] : this.state.spectators.toArray()[0];
+                await this.setMetadata({
+                    host: this.state.playerNames.get(this.state.host)
+                });
+            }
         }
     }
 

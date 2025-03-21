@@ -10,6 +10,6 @@ export default function Footer({forMobile = false}: {
             <Link href="mailto:pro@may-baptiste.fr">May Baptiste</Link>
         </address>
         <span>-</span>
-        <span>v1.0.4</span>
+        <span>v1.0.5</span>
     </div>;
 }

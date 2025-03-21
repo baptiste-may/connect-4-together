@@ -30,15 +30,15 @@ export default function Grid() {
             }))}
             <div className="absolute left-0 top-0 grid grid-cols-7 w-full h-full" onMouseLeave={() => {
                 setSelectedColumn(null);
-            }} onClick={() => {
-                if (selectedColumn === null) return;
-                setSelectedColumn(null);
-                room.send("play-piece", selectedColumn);
             }}>
                 {_.range(7).map(i =>
                     <div key={i} className="w-full h-full"
                          onMouseEnter={() => {
                              setSelectedColumn(i);
+                         }}
+                         onClick={() => {
+                             setSelectedColumn(null);
+                             room.send("play-piece", i);
                          }}/>)}
             </div>
         </div>
