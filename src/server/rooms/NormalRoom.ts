@@ -15,7 +15,7 @@ export class State extends Schema {
     @type(["number"]) board = new ArraySchema<number>();
     @type([ChatMessage]) chatMessages = new ArraySchema<ChatMessage>();
     @type("number") turn = 0;
-    @type("number") winner = -1;
+    @type("string") winner = "";
     @type({set: "string"}) votedForSkip = new SetSchema<string>();
 }
 
@@ -104,7 +104,7 @@ export class NormalRoom extends Room<State> {
         });
 
         this.onMessage("play-piece", (client, message) => {
-            if (this.state.winner !== -1) return;
+            if (this.state.winner !== "") return;
             const column = parseInt(message);
             if (column > 6) return;
             if (this.getNbPlayers() < 2) return;
@@ -123,7 +123,7 @@ export class NormalRoom extends Room<State> {
                 }
                 this.state.votedForSkip.clear();
                 this.state.turn = -1;
-                this.state.winner = -1;
+                this.state.winner = "";
                 this.newTurn();
             }
         });
@@ -173,7 +173,7 @@ export class NormalRoom extends Room<State> {
             const index = this.state.players.indexOf(client.id);
             if (index !== -1) {
                 this.state.players[index] = "";
-                if (index === this.state.turn) this.newTurn();
+                if (index === this.state.turn && this.state.winner === "") this.newTurn();
             }
             if (this.state.host === client.id) {
                 const players = this.state.players.filter(p => p !== "");
@@ -206,7 +206,7 @@ export class NormalRoom extends Room<State> {
         if (i < 0) return;
         this.state.board[i * 7 + column] = color;
         this.checkIfGameOver();
-        this.newTurn();
+        if (this.state.winner === "") this.newTurn();
     }
 
     /**
@@ -267,7 +267,7 @@ export class NormalRoom extends Room<State> {
                         if (!this.correctCoords(X, Y)) break;
                         if (grid[X][Y] !== color) break;
                         if (k === 3) {
-                            this.state.winner = color;
+                            this.state.winner = this.state.players[color] || "";
                             return;
                         }
                     }

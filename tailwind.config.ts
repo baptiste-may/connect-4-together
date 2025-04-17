@@ -7,6 +7,7 @@ export default {
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
         "node_modules/daisyui/dist/**/*.js",
         "node_modules/react-daisyui/dist/**/*.js",
+        "./mdx-components.tsx"
     ],
     theme: {},
     plugins: [

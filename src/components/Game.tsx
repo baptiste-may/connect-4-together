@@ -19,7 +19,7 @@ const GameContext = createContext<undefined | {
         author: string;
     }[];
     turn: number;
-    winner: number;
+    winner: string;
     yourColor: number;
     isYourTurn: boolean;
     nbPlayers: number;
@@ -43,7 +43,7 @@ export default function Game({room, onLeaveRoom}: {
         author: string;
     }[]>([]);
     const [turn, setTurn] = useState(0);
-    const [winner, setWinner] = useState(-1);
+    const [winner, setWinner] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(true);
     const [votedForSkip, setVotedForSkip] = useState<Set<string>>(new Set<string>());
     const [isPrivate, setIsPrivate] = useState(true);
@@ -59,7 +59,7 @@ export default function Game({room, onLeaveRoom}: {
     useEffect(() => {
         room.state.listen("host", (value: string) => setHost(value));
         room.state.listen("turn", (value: number) => setTurn(value));
-        room.state.listen("winner", (value: number) => setWinner(value));
+        room.state.listen("winner", (value: string) => setWinner(value));
         room.state.listen("isPrivate", (value: boolean) => setIsPrivate(value));
 
         room.state.playerNames.onAdd((name: string, id: string) => setPlayerNames(prev => {

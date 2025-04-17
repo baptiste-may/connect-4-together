@@ -1,6 +1,6 @@
 {
   "name": "connect-4-together",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "scripts": {
     "dev": "nodemon src/main.ts",
@@ -13,8 +13,11 @@
     "@colyseus/schema": "^2.0.36",
     "@colyseus/ws-transport": "^0.15.3",
     "@faker-js/faker": "^9.4.0",
+    "@next/mdx": "^15.3.0",
+    "@next/third-parties": "^15.3.0",
     "@types/express": "^5.0.0",
     "@types/leo-profanity": "^1.5.4",
+    "@types/mdx": "^2.0.13",
     "@types/underscore": "^1.13.0",
     "colyseus": "^0.15.57",
     "colyseus.js": "^0.15.26",
@@ -22,12 +25,12 @@
     "express": "^4.21.2",
     "express-basic-auth": "^1.2.1",
     "leo-profanity": "^1.7.0",
-    "lucide-react": "^0.477.0",
-    "next": "15.1.6",
-    "react": "^19.0.0",
+    "lucide-react": "^0.488.0",
+    "next": "15.3.0",
+    "react": "^19.1.0",
     "react-daisyui": "^5.0.5",
-    "react-dom": "^19.0.0",
-    "tsx": "^4.19.2",
+    "react-dom": "^19.1.0",
+    "tsx": "^4.19.3",
     "underscore": "^1.13.7",
     "uuid": "^11.1.0"
   },
@@ -48,5 +51,5 @@
       "esbuild"
     ]
   },
-  "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af"
+  "packageManager": "pnpm@10.8.1"
 }

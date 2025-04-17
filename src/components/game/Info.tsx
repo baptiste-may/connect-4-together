@@ -21,10 +21,10 @@ function Component({status, Icon, title, subtitle}: {
 
 export default function Info() {
 
-    const {isYourTurn, yourColor, isAPlayer, nbPlayers, winner, getName, players, grid} = useGameData();
+    const {isYourTurn, yourColor, isAPlayer, nbPlayers, winner, getName, grid, room} = useGameData();
 
-    if (winner !== -1) {
-        if (winner === yourColor) return <Component
+    if (winner !== "") {
+        if (winner === room.sessionId) return <Component
             status="success" Icon={Award}
             title="Bravo !"
             subtitle="Vous avez gagné la partie !"
@@ -32,12 +32,12 @@ export default function Info() {
         if (yourColor !== -1) return <Component
             status="error" Icon={Frown}
             title="Dommage !"
-            subtitle={`${getName(players[winner])} a gagné la partie !`}
+            subtitle={`${getName(winner)} a gagné la partie !`}
         />;
         return <Component
             status="success" Icon={Crown}
             title="Partie finie !"
-            subtitle={`${getName(players[winner])} a gagné la partie !`}
+            subtitle={`${getName(winner)} a gagné la partie !`}
         />;
     }
 

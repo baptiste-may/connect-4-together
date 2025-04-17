@@ -1,18 +1,18 @@
 "use client";
 
-import {useName} from "@/components/providers/NameProvider";
+import NameProvider, {useName} from "@/components/providers/NameProvider";
 import {useEffect, useState} from "react";
 import {Room} from "colyseus.js";
-import {useClient} from "@/components/providers/ClientProvider";
+import ClientProvider, {useClient} from "@/components/providers/ClientProvider";
 import Game from "@/components/Game";
 import {Button, Card, Divider, Hero} from "react-daisyui";
 import JoinModal from "@/components/modals/JoinModal";
 import RoomsModal from "@/components/modals/RoomsModal";
 import {useToast} from "@/components/providers/ToastProvider";
 import {CircleX, Logs, Play, Plus, Search} from "lucide-react";
-import Settings from "@/components/Settings";
+import More from "@/components/More";
 
-export default function Page() {
+function PageWithHandler() {
 
     const alert = useToast();
     const {name} = useName();
@@ -32,11 +32,11 @@ export default function Page() {
             }
         }
         else localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);
-    }, [currentRoom]);
+    }, [client, currentRoom]);
 
     return (
         <>
-            <Settings room={currentRoom}/>
+            <More room={currentRoom}/>
             {currentRoom === undefined ? <Hero className="min-h-screen">
                 <Hero.Content className="flex-col">
                     <h1 className="text-3xl md:text-5xl font-bold">Connect 4 Together</h1>
@@ -110,5 +110,15 @@ export default function Page() {
                 } else setCurrentRoom(undefined);
             }}/>}
         </>
+    );
+}
+
+export default function Page() {
+    return (
+        <ClientProvider>
+            <NameProvider>
+                <PageWithHandler/>
+            </NameProvider>
+        </ClientProvider>
     );
 }

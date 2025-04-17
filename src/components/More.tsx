@@ -1,14 +1,13 @@
 "use client";
 
-import {Button, Input, Join, Modal, Select} from "react-daisyui";
-import {Settings2, SquarePen, X} from "lucide-react";
+import {Button, Input, Join, Link, Modal, Select} from "react-daisyui";
+import {EllipsisVertical, Settings2, SquarePen, X} from "lucide-react";
 import {useEffect, useState} from "react";
 import {useName} from "@/components/providers/NameProvider";
 import {useTheme} from "@/components/providers/ThemeProvider";
-import Footer from "@/components/Footer";
 import {Room} from "colyseus.js";
 
-export default function Settings({room}: {
+export default function More({room}: {
     room?: Room;
 }) {
 
@@ -23,10 +22,9 @@ export default function Settings({room}: {
     }, [name]);
 
     return (
-        <div className="fixed flex items-center gap-4 top-0 right-0 m-2 z-50">
-            <Footer/>
-            <Button color="neutral" shape="square" onClick={() => setIsOpen(true)}>
-                <Settings2/>
+        <>
+            <Button color="neutral" shape="square" onClick={() => setIsOpen(true)} className="fixed top-0 right-0 m-2 z-50">
+                <EllipsisVertical/>
             </Button>
             <Modal.Legacy open={isOpen} onClickBackdrop={() => setIsOpen(false)} responsive>
                 <Button size="sm" color="ghost" shape="square" className="absolute right-2 top-2"
@@ -34,7 +32,7 @@ export default function Settings({room}: {
                     <X/>
                 </Button>
                 <Modal.Body className="flex flex-col gap-4">
-                    <Modal.Header className="flex gap-2 mb-4 font-bold">
+                    <Modal.Header className="flex gap-2 mb-0 font-bold">
                         <Settings2 strokeWidth={3}/>
                         Paramètres
                     </Modal.Header>
@@ -66,9 +64,24 @@ export default function Settings({room}: {
                             <Select.Option value="light">Light mode</Select.Option>
                         </Select>
                     </div>
-                    <Footer forMobile/>
+                    <div className="flex flex-col gap-1 mt-4">
+                        <span className="text-center">Connect 4 Together - v1.0.6</span>
+                        <div className="flex gap-1 justify-center">
+                            ©
+                            <time dateTime="2025">2025</time>
+                            May Baptiste -
+                            <address>
+                                <Link hover={false} href="mailto:pro@may-baptiste.fr">pro@may-baptiste.fr</Link>
+                            </address>
+                        </div>
+                        <div className="flex gap-1 justify-center">
+                            <Link hover={false} href="/legal-notice" target="_blank">Mentions légales</Link>
+                            ·
+                            <Link hover={false} href="/privacy-policy" target="_blank">Politique de confidentialité</Link>
+                        </div>
+                    </div>
                 </Modal.Body>
             </Modal.Legacy>
-        </div>
+        </>
     );
 }

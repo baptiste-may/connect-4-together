@@ -20,9 +20,9 @@ export default function Grid() {
 
     return (
         <div
-            className="relative grid grid-cols-7 grid-rows-6 bg-blue-600 border-4 border-blue-800 rounded-2xl w-full 2xl:w-auto h-auto 2xl:h-full aspect-[7/6] overflow-y-auto">
+            className="relative grid grid-cols-7 grid-rows-6 bg-blue-600 border-4 border-blue-800 rounded-2xl w-[99vmin] aspect-[7/6]">
             {grid.map((row, i) => row.map((value, j) => {
-                const isSelectedCase = nbPlayers >= 2 && isYourTurn && winner === -1 && selectedCase !== null && i === selectedCase[0] && j === selectedCase[1];
+                const isSelectedCase = nbPlayers >= 2 && isYourTurn && winner === "" && selectedCase !== null && i === selectedCase[0] && j === selectedCase[1];
                 return (
                     <Case key={`${i}-${j}`} color={isSelectedCase ? yourColor : value}
                           hoved={isSelectedCase}/>

@@ -1,10 +1,9 @@
 import type {Metadata} from "next";
 import "./globals.css";
 import {ReactNode} from "react";
-import NameProvider from "@/components/providers/NameProvider";
-import ClientProvider from "@/components/providers/ClientProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
+import {GoogleAnalytics} from "@next/third-parties/google";
 
 const title = "Connect 4 Together";
 const description = "Puissance 4 jusqu'à 4 joueurs en simultanés !";
@@ -23,16 +22,17 @@ export default function RootLayout({
                                    }: Readonly<{
     children: ReactNode;
 }>) {
+
+    const googleAnalyticsGa = process.env.GOOGLE_ANALYTICS_GA;
+    if (googleAnalyticsGa === undefined) throw new Error("GOOGLE_ANALYTICS_GA is not defined");
+
     return (
         <html lang="fr">
+        <GoogleAnalytics gaId={googleAnalyticsGa}/>
         <body>
         <ThemeProvider>
             <ToastProvider>
-                <ClientProvider>
-                    <NameProvider>
-                        {children}
-                    </NameProvider>
-                </ClientProvider>
+                {children}
             </ToastProvider>
         </ThemeProvider>
         </body>
