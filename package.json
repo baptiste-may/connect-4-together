@@ -1,6 +1,6 @@
 {
   "name": "connect-4-together",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": true,
   "scripts": {
     "dev": "nodemon src/main.ts",
@@ -10,45 +10,49 @@
   },
   "dependencies": {
     "@colyseus/monitor": "^0.15.8",
-    "@colyseus/schema": "^2.0.36",
+    "@colyseus/schema": "^2.0.37",
     "@colyseus/ws-transport": "^0.15.3",
-    "@faker-js/faker": "^9.4.0",
-    "@next/mdx": "^15.3.0",
-    "@next/third-parties": "^15.3.0",
-    "@types/express": "^5.0.0",
+    "@faker-js/faker": "^9.8.0",
+    "@next/mdx": "^15.3.3",
+    "@next/third-parties": "^15.3.3",
+    "@types/express": "^5.0.3",
     "@types/leo-profanity": "^1.5.4",
     "@types/mdx": "^2.0.13",
     "@types/underscore": "^1.13.0",
     "colyseus": "^0.15.57",
-    "colyseus.js": "^0.15.26",
-    "dotenv": "^16.4.7",
+    "colyseus.js": "^0.15.28",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "express-basic-auth": "^1.2.1",
     "leo-profanity": "^1.7.0",
-    "lucide-react": "^0.488.0",
-    "next": "15.3.0",
+    "lucide-react": "^0.513.0",
+    "next": "15.3.3",
     "react": "^19.1.0",
     "react-daisyui": "^5.0.5",
     "react-dom": "^19.1.0",
-    "tsx": "^4.19.3",
+    "tsx": "^4.19.4",
     "underscore": "^1.13.7",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@types/node": "^22.13.1",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "daisyui": "^4.12.23",
-    "eslint": "^9.20.0",
-    "eslint-config-next": "15.1.6",
-    "postcss": "^8.5.1",
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/node": "^22.15.30",
+    "@types/react": "^19.1.7",
+    "@types/react-dom": "^19.1.6",
+    "daisyui": "^4.12.24",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "15.3.3",
+    "nodemon": "^3.1.10",
+    "postcss": "^8.5.4",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "msgpackr-extract",
+      "sharp",
+      "unrs-resolver"
     ]
   },
   "packageManager": "pnpm@10.8.1"

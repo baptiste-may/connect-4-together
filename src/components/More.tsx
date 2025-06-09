@@ -1,11 +1,12 @@
 "use client";
 
-import {Button, Input, Join, Link, Modal, Select} from "react-daisyui";
+import {Button, Form, Input, Join, Link, Modal, Select} from "react-daisyui";
 import {EllipsisVertical, Settings2, SquarePen, X} from "lucide-react";
 import {useEffect, useState} from "react";
-import {useName} from "@/components/providers/NameProvider";
 import {useTheme} from "@/components/providers/ThemeProvider";
 import {Room} from "colyseus.js";
+import {useName} from "@/components/providers/NameProvider";
+import {currentVersion} from "@/libs/static";
 
 export default function More({room}: {
     room?: Room;
@@ -36,7 +37,7 @@ export default function More({room}: {
                         <Settings2 strokeWidth={3}/>
                         Paramètres
                     </Modal.Header>
-                    <form className="form-control w-full max-w-xs" onSubmit={e => {
+                    <Form onSubmit={e => {
                         e.preventDefault();
                         if (nameInput === "") return;
                         setName(nameInput);
@@ -53,8 +54,8 @@ export default function More({room}: {
                                 <SquarePen/>
                             </Button>
                         </Join>
-                    </form>
-                    <div className="form-control w-full max-w-xs">
+                    </Form>
+                    <Form className="max-w-xs">
                         <label className="label">
                             <span className="label-text">Votre thème</span>
                         </label>
@@ -63,9 +64,9 @@ export default function More({room}: {
                             <Select.Option value="dark">Dark mode</Select.Option>
                             <Select.Option value="light">Light mode</Select.Option>
                         </Select>
-                    </div>
+                    </Form>
                     <div className="flex flex-col gap-1 mt-4">
-                        <span className="text-center">Connect 4 Together - v1.0.6</span>
+                        <span className="text-center">Connect 4 Together - {currentVersion}</span>
                         <div className="flex gap-1 justify-center">
                             ©
                             <time dateTime="2025">2025</time>

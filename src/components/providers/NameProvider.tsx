@@ -1,12 +1,11 @@
 "use client";
 
-import {fakerFR} from "@faker-js/faker";
 import {createContext, ReactNode, useContext, useEffect, useState} from "react";
-import {Button, Card, Hero, Input, Loading} from "react-daisyui";
-import {Telescope, UserCheck} from "lucide-react";
+import {UserCheck} from "lucide-react";
 import {useToast} from "@/components/providers/ToastProvider";
+import {fakerFR} from "@faker-js/faker";
 
-const NameContext = createContext<undefined | null | {
+const NameContext = createContext<undefined | {
     name: string;
     setName: (name: string) => void;
 }>(undefined);
@@ -17,12 +16,12 @@ export default function NameProvider({children}: {
 
     const alert = useToast();
 
-    const [name, setName] = useState<undefined | null | string>(undefined);
-    const [inputName, setInputName] = useState("");
+    const [name, setName] = useState<string>("");
 
     const customSetName = (name: string) => {
-        setName(name);
-        localStorage.setItem("name", name);
+        const transformedName = name.charAt(0).toUpperCase() + name.slice(1);
+        setName(transformedName);
+        localStorage.setItem("name", transformedName);
         alert({
             title: "Votre nom a été mis à jour !",
             status: "success",
@@ -31,42 +30,18 @@ export default function NameProvider({children}: {
     }
 
     useEffect(() => {
-        setInputName(fakerFR.person.firstName());
-        setName(localStorage.getItem("name"));
+        setName(localStorage.getItem("name") || fakerFR.person.firstName());
     }, []);
 
     return (
-        <NameContext.Provider value={name === undefined || name === null ? name : {name, setName: customSetName}}>
-            {name === undefined || name === null ? <Hero className="min-h-screen">
-                <Hero.Content>
-                    {name === undefined ? <Loading size="lg" variant="dots"/> : <Card>
-                        <Card.Body>
-                            <Card.Title className="flex justify-center">
-                                {"Bonjour ! Comment t'appelles-tu ?"}
-                            </Card.Title>
-                            <Card.Title className="flex justify-center font-light text-sm">(tu pourras changer ton nom
-                                par la
-                                suite si tu
-                                veux)</Card.Title>
-                            <Input type="text" color="primary" value={inputName}
-                                   onChange={e => setInputName(e.target.value)}/>
-                            <Button color="primary" onClick={() => {
-                                if (inputName === "") return;
-                                customSetName(inputName);
-                            }}>
-                                <Telescope/>
-                                {"C'est parti !"}
-                            </Button>
-                        </Card.Body>
-                    </Card>}
-                </Hero.Content>
-            </Hero> : children}
+        <NameContext.Provider value={{name, setName: customSetName}}>
+            {children}
         </NameContext.Provider>
     );
 }
 
 export function useName() {
     const context = useContext(NameContext);
-    if (context === undefined || context === null) throw new Error("");
+    if (context === undefined) throw new Error("");
     return context;
 }

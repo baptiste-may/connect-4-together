@@ -1,38 +1,49 @@
 "use client";
 
-import NameProvider, {useName} from "@/components/providers/NameProvider";
 import {useEffect, useState} from "react";
-import {Room} from "colyseus.js";
+import {Room, RoomAvailable} from "colyseus.js";
 import ClientProvider, {useClient} from "@/components/providers/ClientProvider";
 import Game from "@/components/Game";
-import {Button, Card, Divider, Hero} from "react-daisyui";
-import JoinModal from "@/components/modals/JoinModal";
-import RoomsModal from "@/components/modals/RoomsModal";
+import {Button, Card, Divider, Hero, Loading, Table} from "react-daisyui";
 import {useToast} from "@/components/providers/ToastProvider";
-import {CircleX, Logs, Play, Plus, Search} from "lucide-react";
+import {CircleX, Crown, Dices, ListRestart, LogIn, Play, Plus, Users} from "lucide-react";
 import More from "@/components/More";
+import {GoogleAnalytics} from "@next/third-parties/google";
+import {GOOGLE_ANALYTICS_GA} from "@/libs/static";
+import BMCButton from "@/components/BMCButton";
+import NameInput from "@/components/NameInput";
+import NameProvider, {useName} from "@/components/providers/NameProvider";
+import JoinForm from "@/components/JoinForm";
 
 function PageWithHandler() {
 
     const alert = useToast();
-    const {name} = useName();
-    const client = useClient();
+    const {name: username} = useName();
+    const {client, isLoading} = useClient();
 
     const [currentRoom, setCurrentRoom] = useState<undefined | Room>(undefined);
-    const [joinModalOpen, setJoinModalOpen] = useState(false);
-    const [roomsModalOpen, setRoomsModalOpen] = useState(false);
+    const [rooms, setRooms] = useState<RoomAvailable[] | undefined>(undefined);
+
+    const updateRooms = () => {
+        setRooms(undefined);
+        if (isLoading) return;
+        client.getAvailableRooms().then(res => {
+            setRooms(res);
+        });
+    };
 
     useEffect(() => {
+        updateRooms();
         if (currentRoom === undefined) {
             const reconnectionToken = localStorage.getItem("reconnectionToken");
-            if (reconnectionToken !== null) {
+            if (reconnectionToken !== null && !isLoading) {
                 client.reconnect(reconnectionToken)
-                    .then(room => setCurrentRoom(room))
+                    .then(setCurrentRoom)
                     .catch(() => localStorage.removeItem("reconnectionToken"));
             }
         }
         else localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);
-    }, [client, currentRoom]);
+    }, [client, isLoading, currentRoom]);
 
     return (
         <>
@@ -40,65 +51,95 @@ function PageWithHandler() {
             {currentRoom === undefined ? <Hero className="min-h-screen">
                 <Hero.Content className="flex-col">
                     <h1 className="text-3xl md:text-5xl font-bold">Connect 4 Together</h1>
-                    <h2 className="text-base md:text-xl font-light">{`Bienvenue ${name} !`}</h2>
+                    <h2 className="flex gap-2 text-base md:text-xl font-light font-mono">
+                        <span>Bienvenue</span>
+                        <NameInput/>
+                        <span>!</span>
+                    </h2>
                     <Card className="bg-base-200">
-                        <Card.Body className="grid grid-cols-1 lg:grid-cols-2">
-                            <Card.Title className="sm:col-span-2 flex justify-center">Entre amis</Card.Title>
-                            <Button color="primary" onClick={() => {
-                                client.create("Normal", {
-                                    name,
-                                    isPrivate: true
-                                }).then(room => {
-                                    setCurrentRoom(room);
-                                }).catch(err => {
-                                    alert({
-                                        title: "Une erreur est survenue",
-                                        subtitle: err.message,
-                                        status: "error",
-                                        Icon: CircleX
+                        <Card.Body>
+                            <Card.Title className="flex justify-center">Entre amis</Card.Title>
+                            <div className="flex flex-col md:flex-row items-center gap-2">
+                                <Button color="primary" disabled={isLoading} className="w-full md:w-auto" onClick={() => {
+                                    if (isLoading) return;
+                                    client.create("Normal", {
+                                        name: username,
+                                        isPrivate: true
+                                    }).then(setCurrentRoom).catch(err => {
+                                        alert({
+                                            title: "Une erreur est survenue",
+                                            subtitle: err.message,
+                                            status: "error",
+                                            Icon: CircleX
+                                        });
                                     });
-                                });
-                            }}>
-                                <Plus/>
-                                Créer une partie
-                            </Button>
-                            <Button color="primary" onClick={() => {
-                                setJoinModalOpen(true);
-                            }}>
-                                <Search/>
-                                Chercher une partie
-                            </Button>
-                            <JoinModal isOpen={joinModalOpen}
-                                       onClose={() => setJoinModalOpen(false)}
-                                       setRoom={room => setCurrentRoom(room)}/>
-                            <Divider className="hidden lg:flex col-span-2 my-2"/>
-                            <Card.Title className="sm:col-span-2 flex justify-center">En ligne</Card.Title>
-                            <Button color="secondary" onClick={() => {
-                                client.joinOrCreate("Normal", {
-                                    name
-                                }).then(room => {
-                                    setCurrentRoom(room);
-                                }).catch(err => {
-                                    alert({
-                                        title: "Une erreur est survenue",
-                                        subtitle: err.message,
-                                        status: "error",
-                                        Icon: CircleX
+                                }}>
+                                    <Plus/>
+                                    Créer une partie
+                                </Button>
+                                <JoinForm setRoom={setCurrentRoom}/>
+                            </div>
+                            <Divider className="flex my-2"/>
+                            <Card.Title className="flex justify-center">En ligne</Card.Title>
+                            <div className="flex gap-2 mb-2">
+                                <Button color="secondary" disabled={isLoading} className="grow" onClick={() => {
+                                    if (isLoading) return;
+                                    client.joinOrCreate("Normal", {
+                                        name: username
+                                    }).then(setCurrentRoom).catch(err => {
+                                        alert({
+                                            title: "Une erreur est survenue",
+                                            subtitle: err.message,
+                                            status: "error",
+                                            Icon: CircleX
+                                        });
                                     });
-                                });
-                            }}>
-                                <Play/>
-                                Rejoindre une partie
-                            </Button>
-                            <Button color="secondary" onClick={() => setRoomsModalOpen(true)}>
-                                <Logs/>
-                                Parcourir les parties
-                            </Button>
-                            <RoomsModal isOpen={roomsModalOpen}
-                                        onClose={() => setRoomsModalOpen(false)}
-                                        setRoom={room => setCurrentRoom(room)}/>
+                                }}>
+                                    <Play/>
+                                    Rejoindre une partie
+                                </Button>
+                                <Button shape="square" color="secondary" onClick={updateRooms}>
+                                    <ListRestart/>
+                                </Button>
+                            </div>
+                            <div className="flex justify-center">
+                                {rooms === undefined ? <Loading variant="dots" size="lg"/> : rooms.length === 0 ?
+                                    undefined : <Table>
+                                        <Table.Head>
+                                            <span className="flex gap-1">
+                                                <Dices size={16}/>
+                                                Type
+                                            </span>
+                                            <span className="flex gap-1">
+                                                <Crown size={16}/>
+                                                Host
+                                            </span>
+                                            <span className="flex gap-1">
+                                                <Users size={16}/>
+                                                Joueurs
+                                            </span>
+                                        </Table.Head>
+                                        <Table.Body>
+                                            {rooms.map(({roomId, name, clients, maxClients, metadata}) => <Table.Row hover key={roomId}>
+                                                <span>{name}</span>
+                                                <span>{metadata.host}</span>
+                                                <span>{`${clients} / ${maxClients}`}</span>
+                                                <Button color="secondary" size="sm" disabled={isLoading} shape="square" onClick={() => {
+                                                    if (isLoading) return;
+                                                    client.joinById(roomId, {
+                                                        name: username
+                                                    }).then(setCurrentRoom);
+                                                }}>
+                                                    <LogIn size={16}/>
+                                                </Button>
+                                            </Table.Row>)}
+                                        </Table.Body>
+                                    </Table>}
+                            </div>
                         </Card.Body>
                     </Card>
+                    <BMCButton/>
+                    <hr className="h-8"/>
                 </Hero.Content>
             </Hero> : <Game room={currentRoom} onLeaveRoom={(intentional: boolean) => {
                 currentRoom.removeAllListeners();
@@ -115,10 +156,13 @@ function PageWithHandler() {
 
 export default function Page() {
     return (
-        <ClientProvider>
-            <NameProvider>
-                <PageWithHandler/>
-            </NameProvider>
-        </ClientProvider>
+        <>
+            <GoogleAnalytics gaId={GOOGLE_ANALYTICS_GA}/>
+            <ClientProvider>
+                <NameProvider>
+                    <PageWithHandler/>
+                </NameProvider>
+            </ClientProvider>
+        </>
     );
 }

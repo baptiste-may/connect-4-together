@@ -11,29 +11,38 @@ export type AlertData = {
     status?: "success" | "info" | "warning" | "error";
 };
 
+export type AlertDataWithTimer = AlertData & {
+    timer: NodeJS.Timeout;
+};
+
 const ToastContext = createContext<undefined | ((data: AlertData) => void)>(undefined);
 
 export default function ToastProvider({children}: {
     children: ReactNode;
 }) {
 
-    const [alerts, setAlerts] = useState<AlertData[]>([]);
+    const [alerts, setAlerts] = useState<AlertDataWithTimer[]>([]);
 
     const addAlert = (data: AlertData) => {
-        setAlerts(prev => [...prev, data]);
+        const newData = data as AlertDataWithTimer;
+        newData.timer = setTimeout(() => {
+            setAlerts(prev => prev.filter(elt => elt !== newData));
+        }, 5000);
+        setAlerts(prev => [...prev, newData]);
     }
 
     return (
         <ToastContext.Provider value={addAlert}>
             {children}
-            <Toast vertical="bottom" horizontal="end">
-                {alerts.map(({Icon, status, title, subtitle}, index) => <Alert key={index} status={status}
+            <Toast vertical="bottom" horizontal="end" className="z-50">
+                {alerts.map(({Icon, status, title, subtitle, timer}, index) => <Alert key={index} status={status}
                                                                                icon={Icon && <Icon strokeWidth={3}/>}>
                     <div>
                         <h3 className="font-bold">{title}</h3>
                         {subtitle && <div className="text-xs">{subtitle}</div>}
                     </div>
                     <Button color="ghost" shape="square" onClick={() => {
+                        clearTimeout(timer);
                         setAlerts(prev => prev.filter((_, i) => i !== index));
                     }}><X/></Button>
                 </Alert>)}

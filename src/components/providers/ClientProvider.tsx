@@ -3,10 +3,15 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 import {Client} from "colyseus.js";
 import {useToast} from "@/components/providers/ToastProvider";
-import {Hero, Loading} from "react-daisyui";
 import {CloudAlert} from "lucide-react";
 
-const ClientContext = createContext<undefined | Client>(undefined);
+const ClientContext = createContext<undefined | {
+    isLoading: true;
+    client?: Client;
+} | {
+    isLoading: false;
+    client: Client;
+}>(undefined);
 
 export default function ClientProvider({children}: {
     children: ReactNode;
@@ -30,12 +35,8 @@ export default function ClientProvider({children}: {
     }, [alert]);
 
     return (
-        <ClientContext.Provider value={client}>
-            {client === undefined ? <Hero className="min-h-screen">
-                <Hero.Content>
-                    <Loading size="lg" variant="dots"/>
-                </Hero.Content>
-            </Hero> : children}
+        <ClientContext.Provider value={client === undefined ? {isLoading: true} : {isLoading: false, client}}>
+            {children}
         </ClientContext.Provider>
     );
 }

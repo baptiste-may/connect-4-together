@@ -50,7 +50,7 @@ export default function Info() {
         return <Component
             status="success" Icon={CircleCheck}
             title="Prêt à commencer !"
-            subtitle="Vous pouvez chosir votre couleur."
+            subtitle="Vous pouvez choisir votre couleur."
         />;
     }
 

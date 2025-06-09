@@ -1,20 +1,26 @@
-import type {Metadata} from "next";
+import type {Metadata, Viewport} from "next";
 import "./globals.css";
 import {ReactNode} from "react";
 import ToastProvider from "@/components/providers/ToastProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
-import {GoogleAnalytics} from "@next/third-parties/google";
+import {SITE_URL} from "@/libs/static";
 
 const title = "Connect 4 Together";
 const description = "Puissance 4 jusqu'à 4 joueurs en simultanés !";
 
 export const metadata: Metadata = {
+    metadataBase: new URL(SITE_URL),
     title,
     description,
     icons: "./logo.webp",
     openGraph: {
-        title, description
+        title, description,
+        images: "/image.webp"
     }
+};
+
+export const viewport: Viewport = {
+    themeColor: "#FF0000"
 };
 
 export default function RootLayout({
@@ -22,13 +28,8 @@ export default function RootLayout({
                                    }: Readonly<{
     children: ReactNode;
 }>) {
-
-    const googleAnalyticsGa = process.env.GOOGLE_ANALYTICS_GA;
-    if (googleAnalyticsGa === undefined) throw new Error("GOOGLE_ANALYTICS_GA is not defined");
-
     return (
         <html lang="fr">
-        <GoogleAnalytics gaId={googleAnalyticsGa}/>
         <body>
         <ThemeProvider>
             <ToastProvider>
