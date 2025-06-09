@@ -23,8 +23,8 @@ export default function NameInput() {
             <input type="text" className="bg-inherit w-auto" value={value} ref={ref}
                    onChange={e => setValue(e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1))}
                    onBlur={() => {
-                       if (value === "") return;
-                       setName(value);
+                       if (value === "") setValue(name);
+                       else setName(value);
                    }}/>
             <div className="absolute top-1/2 right-0 -translate-y-1/2">
                 <Pencil color="#333" size={20}/>
