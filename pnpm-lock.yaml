@@ -18,8 +18,8 @@ importers:
         specifier: ^0.15.3
         version: 0.15.3(@colyseus/core@0.15.57(@colyseus/schema@2.0.37))(@colyseus/schema@2.0.37)
       '@faker-js/faker':
-        specifier: ^10.1.0
-        version: 10.1.0
+        specifier: ^10.5.0
+        version: 10.5.0
       '@next/mdx':
         specifier: ^15.5.7
         version: 15.5.7(@mdx-js/loader@3.1.0)(@mdx-js/react@3.1.0(@types/react@19.2.7)(react@19.2.1))
@@ -67,7 +67,7 @@ importers:
         version: 19.2.1
       react-daisyui:
         specifier: ^5.0.5
-        version: 5.0.5(daisyui@4.12.24(postcss@8.5.23))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.0))
+        version: 5.0.5(daisyui@4.12.24(postcss@8.5.24))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.0))
       react-dom:
         specifier: ^19.2.1
         version: 19.2.1(react@19.2.1)
@@ -78,8 +78,8 @@ importers:
         specifier: ^1.13.8
         version: 1.13.8
       uuid:
-        specifier: ^14.0.1
-        version: 14.0.1
+        specifier: ^14.0.2
+        version: 14.0.2
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.3
@@ -95,7 +95,7 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       daisyui:
         specifier: ^4.12.24
-        version: 4.12.24(postcss@8.5.23)
+        version: 4.12.24(postcss@8.5.24)
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@1.21.7)
@@ -106,8 +106,8 @@ importers:
         specifier: ^3.1.11
         version: 3.1.11
       postcss:
-        specifier: ^8.5.23
-        version: 8.5.23
+        specifier: ^8.5.24
+        version: 8.5.24
       tailwindcss:
         specifier: ^3.4.18
         version: 3.4.18(tsx@4.21.0)(yaml@2.8.0)
@@ -359,8 +359,8 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@faker-js/faker@10.1.0':
-    resolution: {integrity: sha512-C3mrr3b5dRVlKPJdfrAXS8+dq+rq8Qm5SNRazca0JKgw1HQERFmrVb0towvMmw5uu8hHKNiQasMaR/tydf3Zsg==}
+  '@faker-js/faker@10.5.0':
+    resolution: {integrity: sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==}
     engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@gamestdio/clock@1.1.9':
@@ -835,8 +835,8 @@ packages:
     resolution: {integrity: sha512-BmxxndzEWhE4TIEEMBs8lP3MBWN3jFPs/p6gPm/wkv02o41hI6cq9AuSmGAaTTHPtA1FTi2jBre4A9rm5ZmX+Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@ungap/structured-clone@1.3.3':
-    resolution: {integrity: sha512-60YRaenCQcVjYEKOcG824+DRGGIQ3VKErcBoAEDJZz5bKIs2ZG+X/H9Nk+Q6EVkwJk5QNApxbrc5QtBSwtrXAg==}
+  '@ungap/structured-clone@1.4.0':
+    resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -1463,6 +1463,7 @@ packages:
   eslint@9.39.1:
     resolution: {integrity: sha512-BhHmn2yNOFA9H9JmmIVKJmd288g9hrVRDkdoIgRCRuSySRUHH7r/DI6aAXW9T1WwUuY3DFgrcaqB+deURBLR5g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -1495,8 +1496,8 @@ packages:
   estree-util-is-identifier-name@3.0.0:
     resolution: {integrity: sha512-hFtqIDZTIUZ9BXLb8y4pYGyk6+wekIivNVTcmvk8NoOh+VeRn5y6cEHzbURrWbfp1fIqdVipilzj+lfaadNZmg==}
 
-  estree-util-scope@1.0.0:
-    resolution: {integrity: sha512-2CAASclonf+JFWBNJPndcOpA8EMJwa0Q8LUFJEKqXLW6+qBvbFZuF5gItbQOs/umBUkjviCSDCbBwU2cXbmrhQ==}
+  estree-util-scope@1.0.1:
+    resolution: {integrity: sha512-B0np3dcdxqILX5e9nEi5/Fr4K7gL4oYFVPV1zRa2e9wRCbQoZZNWOZFYyoInvXUPJXBXjss+QXlWLJChDEHDkA==}
 
   estree-util-to-js@2.0.0:
     resolution: {integrity: sha512-WDF+xj5rRWmD5tj6bIqRi6CkLIXbbNQUcxQHzGysQzvHmdYG2G7p/Tf0J0gpxGgkeMZNTIjT/AoSvC9Xehcgdg==}
@@ -2408,8 +2409,8 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.5.23:
-    resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
+  postcss@8.5.24:
+    resolution: {integrity: sha512-8RyVklq0owXUTa4xlpzu4l9AaVKIdQvAcOHZWaMh98HgySsUtxRVf/chRe3dsSLqb6i40BzGRzEUddRaI+9TSw==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -2897,8 +2898,8 @@ packages:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
 
-  uuid@14.0.1:
-    resolution: {integrity: sha512-6ZxzVpzDXDa3bJWaHilVayA+BH/1zmxCJoVgvmqJnid/gPoKHxUrS/aC/T6LGQtNHT+XHG9fXPJB4d+IrU30Ew==}
+  uuid@14.0.2:
+    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
     hasBin: true
 
   uuid@8.3.2:
@@ -3189,7 +3190,7 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@faker-js/faker@10.1.0': {}
+  '@faker-js/faker@10.5.0': {}
 
   '@gamestdio/clock@1.1.9': {}
 
@@ -3339,7 +3340,7 @@ snapshots:
       collapse-white-space: 2.1.0
       devlop: 1.1.0
       estree-util-is-identifier-name: 3.0.0
-      estree-util-scope: 1.0.0
+      estree-util-scope: 1.0.1
       estree-walker: 3.0.3
       hast-util-to-jsx-runtime: 2.3.6
       markdown-extensions: 2.0.0
@@ -3658,7 +3659,7 @@ snapshots:
       '@typescript-eslint/types': 8.48.1
       eslint-visitor-keys: 4.2.1
 
-  '@ungap/structured-clone@1.3.3':
+  '@ungap/structured-clone@1.4.0':
     optional: true
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
@@ -4039,12 +4040,12 @@ snapshots:
 
   culori@3.3.0: {}
 
-  daisyui@4.12.24(postcss@8.5.23):
+  daisyui@4.12.24(postcss@8.5.24):
     dependencies:
       css-selector-tokenizer: 0.8.0
       culori: 3.3.0
       picocolors: 1.1.1
-      postcss-js: 4.1.0(postcss@8.5.23)
+      postcss-js: 4.1.0(postcss@8.5.24)
     transitivePeerDependencies:
       - postcss
 
@@ -4517,7 +4518,7 @@ snapshots:
   estree-util-is-identifier-name@3.0.0:
     optional: true
 
-  estree-util-scope@1.0.0:
+  estree-util-scope@1.0.1:
     dependencies:
       '@types/estree': 1.0.9
       devlop: 1.1.0
@@ -5255,7 +5256,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
       '@types/mdast': 4.0.4
-      '@ungap/structured-clone': 1.3.3
+      '@ungap/structured-clone': 1.4.0
       devlop: 1.1.0
       micromark-util-sanitize-uri: 2.0.1
       trim-lines: 3.0.1
@@ -5746,30 +5747,30 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss-import@15.1.0(postcss@8.5.23):
+  postcss-import@15.1.0(postcss@8.5.24):
     dependencies:
-      postcss: 8.5.23
+      postcss: 8.5.24
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.11
 
-  postcss-js@4.1.0(postcss@8.5.23):
+  postcss-js@4.1.0(postcss@8.5.24):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.5.23
+      postcss: 8.5.24
 
-  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.23)(tsx@4.21.0)(yaml@2.8.0):
+  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.24)(tsx@4.21.0)(yaml@2.8.0):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 1.21.7
-      postcss: 8.5.23
+      postcss: 8.5.24
       tsx: 4.21.0
       yaml: 2.8.0
 
-  postcss-nested@6.2.0(postcss@8.5.23):
+  postcss-nested@6.2.0(postcss@8.5.24):
     dependencies:
-      postcss: 8.5.23
+      postcss: 8.5.24
       postcss-selector-parser: 6.1.2
 
   postcss-selector-parser@6.1.2:
@@ -5785,7 +5786,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postcss@8.5.23:
+  postcss@8.5.24:
     dependencies:
       nanoid: 3.3.18
       picocolors: 1.1.1
@@ -5832,9 +5833,9 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
-  react-daisyui@5.0.5(daisyui@4.12.24(postcss@8.5.23))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.0)):
+  react-daisyui@5.0.5(daisyui@4.12.24(postcss@8.5.24))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(tailwindcss@3.4.18(tsx@4.21.0)(yaml@2.8.0)):
     dependencies:
-      daisyui: 4.12.24(postcss@8.5.23)
+      daisyui: 4.12.24(postcss@8.5.24)
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
       tailwindcss: 3.4.18(tsx@4.21.0)(yaml@2.8.0)
@@ -6287,11 +6288,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.23
-      postcss-import: 15.1.0(postcss@8.5.23)
-      postcss-js: 4.1.0(postcss@8.5.23)
-      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.23)(tsx@4.21.0)(yaml@2.8.0)
-      postcss-nested: 6.2.0(postcss@8.5.23)
+      postcss: 8.5.24
+      postcss-import: 15.1.0(postcss@8.5.24)
+      postcss-js: 4.1.0(postcss@8.5.24)
+      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.24)(tsx@4.21.0)(yaml@2.8.0)
+      postcss-nested: 6.2.0(postcss@8.5.24)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.11
       sucrase: 3.35.1
@@ -6489,7 +6490,7 @@ snapshots:
 
   utils-merge@1.0.1: {}
 
-  uuid@14.0.1: {}
+  uuid@14.0.2: {}
 
   uuid@8.3.2: {}
 
