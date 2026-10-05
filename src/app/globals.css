@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-    dialog, div.modal {
-        @apply !z-40;
-    }
+  dialog,
+  div.modal {
+    @apply !z-40;
+  }
 }

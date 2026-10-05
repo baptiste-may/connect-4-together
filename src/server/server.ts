@@ -1,5 +1,5 @@
-import {Server} from "colyseus";
-import {NormalRoom} from "@/server/rooms/NormalRoom";
+import { Server } from "colyseus";
+import { NormalRoom } from "@/server/rooms/NormalRoom";
 
 /**
  * Registers game rooms with the Colyseus server.
@@ -7,5 +7,5 @@ import {NormalRoom} from "@/server/rooms/NormalRoom";
  * @param gameServer - The Colyseus server.
  */
 export default function define(gameServer: Server) {
-    gameServer.define("Normal", NormalRoom);
+  gameServer.define("Normal", NormalRoom);
 }
