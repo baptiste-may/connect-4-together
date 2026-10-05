@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { Theme } from "react-daisyui";
+import { useStoredValue, writeStoredValue } from "@/libs/storedValue";
+
+const THEME_KEY = "theme";
+const DEFAULT_THEME = "retro";
 
 const ThemeContext = createContext<
   | undefined
@@ -18,18 +16,12 @@ const ThemeContext = createContext<
 >(undefined);
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState("retro");
+  const theme = useStoredValue(THEME_KEY, DEFAULT_THEME);
 
   const customSetTheme = (theme: string) => {
     document.querySelector("html")?.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-    setTheme(theme);
+    writeStoredValue(THEME_KEY, theme);
   };
-
-  useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme !== null) setTheme(theme);
-  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: customSetTheme }}>

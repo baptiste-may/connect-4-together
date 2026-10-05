@@ -6,11 +6,15 @@ export default function NameInput() {
   const { name, setName } = useName();
 
   const ref = useRef<HTMLInputElement>(null);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(name);
+  const [syncedName, setSyncedName] = useState(name);
 
-  useEffect(() => {
+  // Adjust the draft during render when the stored name changes, instead of
+  // synchronizing it in an effect (which would cause a cascading render).
+  if (name !== syncedName) {
+    setSyncedName(name);
     setValue(name);
-  }, [name]);
+  }
 
   useEffect(() => {
     if (ref.current === null) return;

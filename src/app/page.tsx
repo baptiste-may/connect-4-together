@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Room, RoomAvailable } from "colyseus.js";
+import { type RoomAvailable } from "@colyseus/sdk";
+import type { GameRoom, GameRoomState } from "@/libs/room";
 import ClientProvider, {
   useClient,
 } from "@/components/providers/ClientProvider";
@@ -33,7 +34,9 @@ function PageWithHandler() {
   const { name: username } = useName();
   const { client, isLoading, rooms: initialRooms } = useClient();
 
-  const [currentRoom, setCurrentRoom] = useState<undefined | Room>(undefined);
+  const [currentRoom, setCurrentRoom] = useState<undefined | GameRoom>(
+    undefined,
+  );
   const [refreshedRooms, setRefreshedRooms] = useState<
     RoomAvailable[] | undefined
   >(undefined);
@@ -43,11 +46,14 @@ function PageWithHandler() {
   const updateRooms = useCallback(() => {
     if (isLoading) return;
     setRefreshedRooms(undefined);
-    client
-      .getAvailableRooms()
+    fetch("/api/rooms")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Unexpected status ${res.status}`);
+        return res.json() as Promise<RoomAvailable[]>;
+      })
       .then(setRefreshedRooms)
       .catch(() => undefined);
-  }, [client, isLoading]);
+  }, [isLoading]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -58,7 +64,7 @@ function PageWithHandler() {
     const reconnectionToken = localStorage.getItem("reconnectionToken");
     if (reconnectionToken === null) return;
     client
-      .reconnect(reconnectionToken)
+      .reconnect<GameRoomState>(reconnectionToken)
       .then(setCurrentRoom)
       .catch(() => localStorage.removeItem("reconnectionToken"));
   }, [client, isLoading, currentRoom]);
@@ -106,7 +112,7 @@ function PageWithHandler() {
                     onClick={() => {
                       if (isLoading) return;
                       client
-                        .create("Normal", {
+                        .create<"Normal", GameRoomState>("Normal", {
                           name: username,
                           isPrivate: true,
                         })
@@ -138,7 +144,7 @@ function PageWithHandler() {
                     onClick={() => {
                       if (isLoading) return;
                       client
-                        .joinOrCreate("Normal", {
+                        .joinOrCreate<"Normal", GameRoomState>("Normal", {
                           name: username,
                         })
                         .then(setCurrentRoom)
@@ -197,7 +203,7 @@ function PageWithHandler() {
                                 onClick={() => {
                                   if (isLoading) return;
                                   client
-                                    .joinById(roomId, {
+                                    .joinById<string, GameRoomState>(roomId, {
                                       name: username,
                                     })
                                     .then(setCurrentRoom);

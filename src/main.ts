@@ -8,6 +8,7 @@ import express from "express";
 import { createServer } from "node:http";
 import basicAuth from "express-basic-auth";
 import { v6 } from "uuid";
+import { listRooms } from "./server/rooms/registry";
 
 const port = parseInt(process.env.PORT || "3000");
 const monitorUser = process.env.MONITOR_USER || v6();
@@ -17,36 +18,53 @@ const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
 nextApp.prepare().then(async () => {
-  const app = express();
-  const server = createServer(app);
+  const upgradeHandler = nextApp.getUpgradeHandler();
+  const server = createServer();
 
-  app.use(express.json());
+  server.on("upgrade", (req, socket, head) => {
+    void upgradeHandler(req, socket, head);
+  });
+
+  const transport = new WebSocketTransport({ noServer: true });
+
+  transport.attachToServer(server, {
+    filter: (req) => !req.url?.startsWith("/_next/"),
+  });
 
   const gameServer = new Server({
-    transport: new WebSocketTransport({ server: server }),
+    transport,
     devMode: dev,
+    express: (app) => {
+      app.use(express.json());
+
+      app.get("/api/rooms", (_req, res) => {
+        res.json(listRooms());
+      });
+
+      app.use(
+        "/admin",
+        basicAuth({
+          users: {
+            [monitorUser]: monitorPassword,
+          },
+          challenge: true,
+          unauthorizedResponse: "Please provide valid credentials",
+        }),
+        monitor({
+          prefix: "/admin",
+          columns: ["roomId", "clients", "locked"],
+        }),
+      );
+
+      app.use((req, res) => handle(req, res));
+    },
   });
 
   defineGameServer(gameServer);
 
-  app.use(
-    "/admin",
-    basicAuth({
-      users: {
-        [monitorUser]: monitorPassword,
-      },
-      challenge: true,
-      unauthorizedResponse: "Please provide valid credentials",
-    }),
-    monitor({
-      columns: ["roomId", "clients", "locked"],
-    }),
-  );
-  app.all("*", (req, res) => handle(req, res));
+  await gameServer.listen(port);
 
-  server.listen(port, () => {
-    console.log(
-      `✅ Server listening at http://localhost:${port} as ${dev ? "development" : "production"}`,
-    );
-  });
+  console.log(
+    `✅ Server listening at http://localhost:${port} as ${dev ? "development" : "production"}`,
+  );
 });

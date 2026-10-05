@@ -1,5 +1,5 @@
 import Case from "@/components/game/content/Case";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useGameData } from "@/components/Game";
 
 export default function Grid() {
@@ -7,16 +7,15 @@ export default function Grid() {
     useGameData();
 
   const [selectedColumn, setSelectedColumn] = useState<null | number>(null);
-  const [selectedCase, setSelectedCase] = useState<null | [number, number]>(
-    null,
-  );
 
-  useEffect(() => {
-    if (selectedColumn === null) return setSelectedCase(null);
+  // Derived from `selectedColumn` and `grid`, so there is no reason to keep it
+  // in state nor to synchronize it in an effect.
+  const selectedCase = useMemo<null | [number, number]>(() => {
+    if (selectedColumn === null) return null;
     let i = grid.length - 1;
     while (i >= 0 && grid[i][selectedColumn] !== -1) i--;
-    if (i < 0) return setSelectedCase(null);
-    setSelectedCase([i, selectedColumn]);
+    if (i < 0) return null;
+    return [i, selectedColumn];
   }, [selectedColumn, grid]);
 
   return (

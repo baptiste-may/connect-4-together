@@ -1,4 +1,4 @@
-import { Client, Room } from "colyseus";
+import { CloseCode, Room, type Client } from "colyseus";
 import {
   ArraySchema,
   MapSchema,
@@ -7,6 +7,7 @@ import {
   type,
 } from "@colyseus/schema";
 import { ChatMessage } from "@/server/utils/Chat";
+import { registerRoom, unregisterRoom } from "@/server/rooms/registry";
 import filter from "leo-profanity";
 
 /**
@@ -28,9 +29,22 @@ export class State extends Schema {
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 /**
+ * Normalizes a player name received from a client.
+ * The schema only stores strings, so a missing or invalid name falls back to
+ * a generated one instead of failing the join.
+ * @param client The client the name belongs to.
+ * @param value The raw value received from the client.
+ * @returns A non-empty player name.
+ */
+function sanitizePlayerName(client: Client, value: unknown): string {
+  const name = typeof value === "string" ? value.trim() : "";
+  return name === "" ? `Joueur ${client.sessionId}` : name;
+}
+
+/**
  * A game room for managing game state and player interactions.
  */
-export class NormalRoom extends Room<State> {
+export class NormalRoom extends Room<{ state: State }> {
   ID_KEY = "$normal";
 
   /**
@@ -83,7 +97,7 @@ export class NormalRoom extends Room<State> {
     await this.setPrivate(false);
 
     this.onMessage("set-lock", async (client, value) => {
-      if (client.id !== this.state.host) return;
+      if (client.sessionId !== this.state.host) return;
       await this.setPrivate(value);
       this.state.isPrivate = value;
     });
@@ -96,16 +110,18 @@ export class NormalRoom extends Room<State> {
       cleanedMessage = filter.clean(cleanedMessage);
       filter.loadDictionary("ru");
       cleanedMessage = filter.clean(cleanedMessage);
-      this.state.chatMessages.push(new ChatMessage(cleanedMessage, client.id));
+      this.state.chatMessages.push(
+        new ChatMessage(cleanedMessage, client.sessionId),
+      );
     });
 
     this.onMessage("join-color", (client, message) => {
       const color = parseInt(message);
       if (color > 4) return;
       if (this.state.players[color] !== "") return;
-      if (this.state.players.includes(client.id)) return;
-      this.state.players[color] = client.id;
-      this.state.spectators.delete(client.id);
+      if (this.state.players.includes(client.sessionId)) return;
+      this.state.players[color] = client.sessionId;
+      this.state.spectators.delete(client.sessionId);
     });
 
     this.onMessage("play-piece", (client, message) => {
@@ -113,15 +129,15 @@ export class NormalRoom extends Room<State> {
       const column = parseInt(message);
       if (column > 6) return;
       if (this.getNbPlayers() < 2) return;
-      const index = this.state.players.indexOf(client.id);
+      const index = this.state.players.indexOf(client.sessionId);
       if (index === -1) return;
       if (index !== this.state.turn) return;
       this.playPiece(column, index);
     });
 
     this.onMessage("vote-skip", (client) => {
-      if (!this.state.players.includes(client.id)) return;
-      this.state.votedForSkip.add(client.id);
+      if (!this.state.players.includes(client.sessionId)) return;
+      this.state.votedForSkip.add(client.sessionId);
       if (this.state.votedForSkip.size >= this.getNbPlayers()) {
         for (let i = 0; i < 7 * 6; i++) {
           this.state.board[i] = -1;
@@ -134,8 +150,13 @@ export class NormalRoom extends Room<State> {
     });
 
     this.onMessage("update-name", (client, message) => {
-      this.state.playerNames.set(client.id, message);
+      this.state.playerNames.set(
+        client.sessionId,
+        sanitizePlayerName(client, message),
+      );
     });
+
+    registerRoom(this);
   }
 
   /**
@@ -145,20 +166,20 @@ export class NormalRoom extends Room<State> {
    */
   async onJoin(
     client: Client,
-    options: {
-      name: string;
+    options?: {
+      name?: string;
       isPrivate?: boolean;
     },
   ) {
-    const name = options.name;
-    this.state.spectators.add(client.id);
-    this.state.playerNames.set(client.id, name);
+    const name = sanitizePlayerName(client, options?.name);
+    this.state.spectators.add(client.sessionId);
+    this.state.playerNames.set(client.sessionId, name);
     if (this.state.host === "") {
-      this.state.host = client.id;
+      this.state.host = client.sessionId;
       await this.setMetadata({
         host: name,
       });
-      if (options.isPrivate) {
+      if (options?.isPrivate) {
         await this.setPrivate(true);
         this.state.isPrivate = true;
       }
@@ -168,23 +189,22 @@ export class NormalRoom extends Room<State> {
   /**
    * Handles a client leaving the room.
    * @param client The client leaving the room.
-   * @param consented Whether the client left the room intentionally.
+   * @param code The close code, `CloseCode.CONSENTED` when the client left intentionally.
    */
-  async onLeave(client: Client, consented: boolean) {
+  async onLeave(client: Client, code?: number) {
     try {
-      if (consented) throw new Error("Consented leave");
+      if (code === CloseCode.CONSENTED) throw new Error("Consented leave");
       await this.allowReconnection(client, 5);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
-      this.state.spectators.delete(client.id);
-      this.state.votedForSkip.delete(client.id);
-      const index = this.state.players.indexOf(client.id);
+    } catch {
+      this.state.spectators.delete(client.sessionId);
+      this.state.votedForSkip.delete(client.sessionId);
+      const index = this.state.players.indexOf(client.sessionId);
       if (index !== -1) {
         this.state.players[index] = "";
         if (index === this.state.turn && this.state.winner === "")
           this.newTurn();
       }
-      if (this.state.host === client.id) {
+      if (this.state.host === client.sessionId) {
         const players = this.state.players.filter((p) => p !== "");
         this.state.host =
           players.length > 0 ? players[0] : this.state.spectators.toArray()[0];
@@ -290,6 +310,7 @@ export class NormalRoom extends Room<State> {
    * Cleans up resources when the room is disposed.
    */
   async onDispose() {
+    unregisterRoom(this);
     this.presence.srem(this.ID_KEY, this.roomId);
   }
 }

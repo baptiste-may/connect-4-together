@@ -2,22 +2,26 @@
 
 import { Button, Form, Input, Join, Link, Modal, Select } from "react-daisyui";
 import { EllipsisVertical, Settings2, SquarePen, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { Room } from "colyseus.js";
+import type { GameRoom } from "@/libs/room";
 import { useName } from "@/components/providers/NameProvider";
 import { currentVersion } from "@/libs/static";
 
-export default function More({ room }: { room?: Room }) {
+export default function More({ room }: { room?: GameRoom }) {
   const { name, setName } = useName();
   const { theme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [nameInput, setNameInput] = useState("");
+  const [nameInput, setNameInput] = useState(name);
+  const [syncedName, setSyncedName] = useState(name);
 
-  useEffect(() => {
+  // Adjust the draft during render when the stored name changes, instead of
+  // synchronizing it in an effect (which would cause a cascading render).
+  if (name !== syncedName) {
+    setSyncedName(name);
     setNameInput(name);
-  }, [name]);
+  }
 
   return (
     <>

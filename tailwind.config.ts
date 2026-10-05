@@ -14,6 +14,14 @@ export default {
   daisyui: {
     themes: ["retro", "dark", "light"],
   },
+  blocklist: [
+    // daisyUI's dist/base.js declares a top-level `*:hover` rule. Because that
+    // file is part of `content`, Tailwind treats `*:hover` as a candidate class
+    // and emits `.\*\:hover`, which it then nests into invalid selectors
+    // (`.table > *tr:hover`). Next 16's CSS parser rejects the result, so this
+    // candidate has to be blocked while the rest of daisyUI stays scanned.
+    "*:hover",
+  ],
   safelist: [
     "bg-red-600",
     "bg-yellow-400",

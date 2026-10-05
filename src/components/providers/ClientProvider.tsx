@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Client, RoomAvailable } from "colyseus.js";
+import { Client, type RoomAvailable } from "@colyseus/sdk";
 import { useToast } from "@/components/providers/ToastProvider";
 import { CloudAlert } from "lucide-react";
 
@@ -53,7 +53,10 @@ export default function ClientProvider({ children }: { children: ReactNode }) {
 
     const probe = () => {
       Promise.race([
-        client.getAvailableRooms(),
+        fetch("/api/rooms").then((res) => {
+          if (!res.ok) throw new Error(`Unexpected status ${res.status}`);
+          return res.json() as Promise<RoomAvailable[]>;
+        }),
         new Promise<never>((_, reject) => {
           timeoutId = setTimeout(
             () => reject(new Error("Connection probe timed out")),

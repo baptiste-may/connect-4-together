@@ -12,7 +12,7 @@ export default function Header() {
     <Card className="rounded-none bg-base-200 lg:rounded-lg">
       <Card.Body>
         <RoomType />
-        <RoomId id={room.id} />
+        <RoomId id={room.roomId} />
         <div className="divider m-0" />
         <SkipButton />
         <LeaveButton />

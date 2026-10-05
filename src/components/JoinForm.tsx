@@ -1,15 +1,15 @@
-import { LogIn, ShieldQuestion } from "lucide-react";
+import { LogIn, ShieldQuestionMark } from "lucide-react";
 import { Button, Input, Join } from "react-daisyui";
 import { useToast } from "@/components/providers/ToastProvider";
 import { useName } from "@/components/providers/NameProvider";
 import { useClient } from "@/components/providers/ClientProvider";
 import { useState } from "react";
-import { Room } from "colyseus.js";
+import type { GameRoom, GameRoomState } from "@/libs/room";
 
 export default function JoinForm({
   setRoom,
 }: {
-  setRoom: (room: Room) => void;
+  setRoom: (room: GameRoom) => void;
 }) {
   const alert = useToast();
   const { name } = useName();
@@ -24,7 +24,7 @@ export default function JoinForm({
         e.preventDefault();
         if (isLoading) return;
         client
-          .joinById(inputValue, {
+          .joinById<string, GameRoomState>(inputValue, {
             name,
           })
           .then((room) => {
@@ -35,7 +35,7 @@ export default function JoinForm({
             alert({
               title: "La partie n'existe pas.",
               status: "error",
-              Icon: ShieldQuestion,
+              Icon: ShieldQuestionMark,
             });
           });
       }}

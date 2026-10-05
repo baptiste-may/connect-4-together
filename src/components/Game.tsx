@@ -1,4 +1,5 @@
-import { Room } from "colyseus.js";
+import { Callbacks } from "@colyseus/schema";
+import type { GameRoom } from "@/libs/room";
 import Side from "@/components/game/Side";
 import Content from "@/components/game/Content";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -9,7 +10,7 @@ import { ChevronRight, X } from "lucide-react";
 const GameContext = createContext<
   | undefined
   | {
-      room: Room;
+      room: GameRoom;
       host: string;
       playerNames: Record<string, string>;
       onLeaveRoom: (intentional: boolean) => void;
@@ -36,7 +37,7 @@ export default function Game({
   room,
   onLeaveRoom,
 }: {
-  room: Room;
+  room: GameRoom;
   onLeaveRoom: (intentional: boolean) => void;
 }) {
   const [host, setHost] = useState("");
@@ -65,32 +66,51 @@ export default function Game({
     [-1, -1, -1, -1, -1, -1, -1],
   ]);
 
+  const [chatRoomId, setChatRoomId] = useState(room.roomId);
+
+  // Reset the chat during render when the room changes, instead of clearing it
+  // inside the subscription effect (which would cause a cascading render).
+  if (chatRoomId !== room.roomId) {
+    setChatRoomId(room.roomId);
+    setChatMessages([]);
+  }
+
   useEffect(() => {
     const unsubs: Array<() => void> = [];
+    const callbacks = Callbacks.get(room);
 
-    setChatMessages([]);
-
-    unsubs.push(room.state.listen("host", (value: string) => setHost(value)));
-    unsubs.push(room.state.listen("turn", (value: number) => setTurn(value)));
     unsubs.push(
-      room.state.listen("winner", (value: string) => setWinner(value)),
+      callbacks.listen("host", (value: string) => setHost(value), true),
     );
     unsubs.push(
-      room.state.listen("isPrivate", (value: boolean) => setIsPrivate(value)),
+      callbacks.listen("turn", (value: number) => setTurn(value), true),
     );
-
     unsubs.push(
-      room.state.playerNames.onAdd((name: string, id: string) =>
-        setPlayerNames((prev) => {
-          const newNames = { ...prev };
-          newNames[id] = name;
-          return newNames;
-        }),
+      callbacks.listen("winner", (value: string) => setWinner(value), true),
+    );
+    unsubs.push(
+      callbacks.listen(
+        "isPrivate",
+        (value: boolean) => setIsPrivate(value),
+        true,
       ),
     );
 
     unsubs.push(
-      room.state.playerNames.onRemove((_: never, id: string) =>
+      callbacks.onAdd(
+        "playerNames",
+        (name: string, id: string) =>
+          setPlayerNames((prev) => {
+            const newNames = { ...prev };
+            newNames[id] = name;
+            return newNames;
+          }),
+        true,
+      ),
+    );
+
+    unsubs.push(
+      callbacks.onRemove("playerNames", (_: string, id: string) =>
         setPlayerNames((prev) => {
           const newNames = { ...prev };
           delete newNames[id];
@@ -100,7 +120,7 @@ export default function Game({
     );
 
     unsubs.push(
-      room.state.playerNames.onChange((name: string, id: string) =>
+      callbacks.onChange("playerNames", (id: string, name: string) =>
         setPlayerNames((prev) => {
           const newNames = { ...prev };
           newNames[id] = name;
@@ -110,17 +130,20 @@ export default function Game({
     );
 
     unsubs.push(
-      room.state.spectators.onAdd((name: string) =>
-        setSpectators((prev) => {
-          const newSpects = new Set(prev);
-          newSpects.add(name);
-          return newSpects;
-        }),
+      callbacks.onAdd(
+        "spectators",
+        (name: string) =>
+          setSpectators((prev) => {
+            const newSpects = new Set(prev);
+            newSpects.add(name);
+            return newSpects;
+          }),
+        true,
       ),
     );
 
     unsubs.push(
-      room.state.spectators.onRemove((name: string) =>
+      callbacks.onRemove("spectators", (name: string) =>
         setSpectators((prev) => {
           const newSpects = new Set(prev);
           newSpects.delete(name);
@@ -130,7 +153,7 @@ export default function Game({
     );
 
     unsubs.push(
-      room.state.players.onChange((value: string, index: number) =>
+      callbacks.onChange("players", (index: number, value: string) =>
         setPlayers((prev) => {
           const newPlayers = [...prev];
           newPlayers[index] = value;
@@ -140,24 +163,29 @@ export default function Game({
     );
 
     unsubs.push(
-      room.state.chatMessages.onAdd(
+      callbacks.onAdd(
+        "chatMessages",
         (value: { content: string; author: string }) =>
           setChatMessages((prev) => [...prev, value]),
+        true,
       ),
     );
 
     unsubs.push(
-      room.state.votedForSkip.onAdd((name: string) =>
-        setVotedForSkip((prev) => {
-          const newVotedForSkip = new Set(prev);
-          newVotedForSkip.add(name);
-          return newVotedForSkip;
-        }),
+      callbacks.onAdd(
+        "votedForSkip",
+        (name: string) =>
+          setVotedForSkip((prev) => {
+            const newVotedForSkip = new Set(prev);
+            newVotedForSkip.add(name);
+            return newVotedForSkip;
+          }),
+        true,
       ),
     );
 
     unsubs.push(
-      room.state.votedForSkip.onRemove((name: string) =>
+      callbacks.onRemove("votedForSkip", (name: string) =>
         setVotedForSkip((prev) => {
           const newVotedForSkip = new Set(prev);
           newVotedForSkip.delete(name);
@@ -171,9 +199,9 @@ export default function Game({
     unsubs.push(() => leaveUnsub.remove(onLeaveCallback));
 
     unsubs.push(
-      room.state.board.onChange((color: number, id: number) => {
-        const x = id % 7;
-        const y = Math.floor(id / 7);
+      callbacks.onChange("board", (index: number, color: number) => {
+        const x = index % 7;
+        const y = Math.floor(index / 7);
         setGrid((prev) => {
           const newGrid = [...prev];
           newGrid[y][x] = color;

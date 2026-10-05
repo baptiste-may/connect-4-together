@@ -1,15 +1,12 @@
 "use client";
 
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import { UserCheck } from "lucide-react";
 import { useToast } from "@/components/providers/ToastProvider";
 import { fakerFR } from "@faker-js/faker";
+import { useStoredValue, writeStoredValue } from "@/libs/storedValue";
+
+const NAME_KEY = "name";
 
 const NameContext = createContext<
   | undefined
@@ -22,12 +19,11 @@ const NameContext = createContext<
 export default function NameProvider({ children }: { children: ReactNode }) {
   const alert = useToast();
 
-  const [name, setName] = useState<string>("");
+  const name = useStoredValue(NAME_KEY, "");
 
   const customSetName = (name: string) => {
     const transformedName = name.charAt(0).toUpperCase() + name.slice(1);
-    setName(transformedName);
-    localStorage.setItem("name", transformedName);
+    writeStoredValue(NAME_KEY, transformedName);
     alert({
       title: "Votre nom a été mis à jour !",
       status: "success",
@@ -36,8 +32,9 @@ export default function NameProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    setName(localStorage.getItem("name") || fakerFR.person.firstName());
-  }, []);
+    if (name !== "") return;
+    writeStoredValue(NAME_KEY, fakerFR.person.firstName());
+  }, [name]);
 
   return (
     <NameContext.Provider value={{ name, setName: customSetName }}>

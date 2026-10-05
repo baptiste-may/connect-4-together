@@ -1,5 +1,5 @@
 import { useGameData } from "@/components/Game";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { Button } from "react-daisyui";
 
 export default function RoomType() {
@@ -15,7 +15,7 @@ export default function RoomType() {
           size="sm"
           onClick={() => room.send("set-lock", !isPrivate)}
         >
-          {isPrivate ? <Lock /> : <Unlock />}
+          {isPrivate ? <Lock /> : <LockOpen />}
         </Button>
       ) : undefined}
     </h1>
