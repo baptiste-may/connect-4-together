@@ -19,6 +19,8 @@
     "@colyseus/sdk": "^0.18.5",
     "@colyseus/ws-transport": "^0.18.4",
     "@faker-js/faker": "^10.6.0",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^16.3.8",
     "@next/third-parties": "^16.3.8",
     "colyseus": "^0.18.9",
