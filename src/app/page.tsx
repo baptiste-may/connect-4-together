@@ -1,9 +1,9 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
+import dynamic from "next/dynamic";
 import {Room, RoomAvailable} from "colyseus.js";
 import ClientProvider, {useClient} from "@/components/providers/ClientProvider";
-import Game from "@/components/Game";
 import {Button, Card, Divider, Hero, Loading, Table} from "react-daisyui";
 import {useToast} from "@/components/providers/ToastProvider";
 import {CircleX, Crown, Dices, ListRestart, LogIn, Play, Plus, Users} from "lucide-react";
@@ -15,35 +15,52 @@ import NameInput from "@/components/NameInput";
 import NameProvider, {useName} from "@/components/providers/NameProvider";
 import JoinForm from "@/components/JoinForm";
 
+const Game = dynamic(() => import("@/components/Game"), {ssr: false});
+
 function PageWithHandler() {
 
     const alert = useToast();
     const {name: username} = useName();
-    const {client, isLoading} = useClient();
+    const {client, isLoading, rooms: initialRooms} = useClient();
 
     const [currentRoom, setCurrentRoom] = useState<undefined | Room>(undefined);
-    const [rooms, setRooms] = useState<RoomAvailable[] | undefined>(undefined);
+    const [refreshedRooms, setRefreshedRooms] = useState<RoomAvailable[] | undefined>(undefined);
 
-    const updateRooms = () => {
-        setRooms(undefined);
+    const rooms = refreshedRooms ?? initialRooms;
+
+    const updateRooms = useCallback(() => {
         if (isLoading) return;
-        client.getAvailableRooms().then(res => {
-            setRooms(res);
-        });
-    };
+        setRefreshedRooms(undefined);
+        client.getAvailableRooms()
+            .then(setRefreshedRooms)
+            .catch(() => undefined);
+    }, [client, isLoading]);
 
     useEffect(() => {
-        updateRooms();
-        if (currentRoom === undefined) {
-            const reconnectionToken = localStorage.getItem("reconnectionToken");
-            if (reconnectionToken !== null && !isLoading) {
-                client.reconnect(reconnectionToken)
-                    .then(setCurrentRoom)
-                    .catch(() => localStorage.removeItem("reconnectionToken"));
-            }
+        if (isLoading) return;
+        if (currentRoom !== undefined) {
+            localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);
+            return;
         }
-        else localStorage.setItem("reconnectionToken", currentRoom.reconnectionToken);
+        const reconnectionToken = localStorage.getItem("reconnectionToken");
+        if (reconnectionToken === null) return;
+        client.reconnect(reconnectionToken)
+            .then(setCurrentRoom)
+            .catch(() => localStorage.removeItem("reconnectionToken"));
     }, [client, isLoading, currentRoom]);
+
+    const onLeaveRoom = useCallback((intentional: boolean) => {
+        if (currentRoom === undefined) return;
+        currentRoom.removeAllListeners();
+        const backToHomepage = () => {
+            setCurrentRoom(undefined);
+            updateRooms();
+        };
+        if (intentional) {
+            localStorage.removeItem("reconnectionToken");
+            currentRoom.leave().then(backToHomepage);
+        } else backToHomepage();
+    }, [currentRoom, updateRooms]);
 
     return (
         <>
@@ -141,15 +158,7 @@ function PageWithHandler() {
                     <BMCButton/>
                     <hr className="h-8"/>
                 </Hero.Content>
-            </Hero> : <Game room={currentRoom} onLeaveRoom={(intentional: boolean) => {
-                currentRoom.removeAllListeners();
-                if (intentional) {
-                    localStorage.removeItem("reconnectionToken");
-                    currentRoom.leave().then(() => {
-                        setCurrentRoom(undefined);
-                    })
-                } else setCurrentRoom(undefined);
-            }}/>}
+            </Hero> : <Game room={currentRoom} onLeaveRoom={onLeaveRoom}/>}
         </>
     );
 }

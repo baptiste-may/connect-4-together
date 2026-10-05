@@ -57,67 +57,73 @@ export default function Game({room, onLeaveRoom}: {
     ]);
 
     useEffect(() => {
-        room.state.listen("host", (value: string) => setHost(value));
-        room.state.listen("turn", (value: number) => setTurn(value));
-        room.state.listen("winner", (value: string) => setWinner(value));
-        room.state.listen("isPrivate", (value: boolean) => setIsPrivate(value));
+        const unsubs: Array<() => void> = [];
 
-        room.state.playerNames.onAdd((name: string, id: string) => setPlayerNames(prev => {
+        setChatMessages([]);
+
+        unsubs.push(room.state.listen("host", (value: string) => setHost(value)));
+        unsubs.push(room.state.listen("turn", (value: number) => setTurn(value)));
+        unsubs.push(room.state.listen("winner", (value: string) => setWinner(value)));
+        unsubs.push(room.state.listen("isPrivate", (value: boolean) => setIsPrivate(value)));
+
+        unsubs.push(room.state.playerNames.onAdd((name: string, id: string) => setPlayerNames(prev => {
             const newNames = {...prev};
             newNames[id] = name;
             return newNames;
-        }));
+        })));
 
-        room.state.playerNames.onRemove((_: never, id: string) => setPlayerNames(prev => {
+        unsubs.push(room.state.playerNames.onRemove((_: never, id: string) => setPlayerNames(prev => {
             const newNames = {...prev};
             delete newNames[id];
             return newNames;
-        }));
+        })));
 
-        room.state.playerNames.onChange((name: string, id: string) => setPlayerNames(prev => {
+        unsubs.push(room.state.playerNames.onChange((name: string, id: string) => setPlayerNames(prev => {
             const newNames = {...prev};
             newNames[id] = name;
             return newNames;
-        }));
+        })));
 
-        room.state.spectators.onAdd((name: string) => setSpectators(prev => {
+        unsubs.push(room.state.spectators.onAdd((name: string) => setSpectators(prev => {
             const newSpects = new Set(prev);
             newSpects.add(name);
             return newSpects;
-        }));
+        })));
 
-        room.state.spectators.onRemove((name: string) => setSpectators(prev => {
+        unsubs.push(room.state.spectators.onRemove((name: string) => setSpectators(prev => {
             const newSpects = new Set(prev);
             newSpects.delete(name);
             return newSpects;
-        }));
+        })));
 
-        room.state.players.onChange((value: string, index: number) => setPlayers(prev => {
+        unsubs.push(room.state.players.onChange((value: string, index: number) => setPlayers(prev => {
             const newPlayers = [...prev];
             newPlayers[index] = value;
             return newPlayers;
-        }));
+        })));
 
-        room.state.chatMessages.onAdd((value: {
+        unsubs.push(room.state.chatMessages.onAdd((value: {
             content: string;
             author: string;
-        }) => setChatMessages(prev => [...prev, value]));
+        }) => setChatMessages(prev => [...prev, value])));
 
-        room.state.votedForSkip.onAdd((name: string) => setVotedForSkip(prev => {
+        unsubs.push(room.state.votedForSkip.onAdd((name: string) => setVotedForSkip(prev => {
             const newVotedForSkip = new Set(prev);
             newVotedForSkip.add(name);
             return newVotedForSkip;
-        }));
+        })));
 
-        room.state.votedForSkip.onRemove((name: string) => setVotedForSkip(prev => {
+        unsubs.push(room.state.votedForSkip.onRemove((name: string) => setVotedForSkip(prev => {
             const newVotedForSkip = new Set(prev);
             newVotedForSkip.delete(name);
             return newVotedForSkip;
-        }));
+        })));
 
-        room.onLeave(() => onLeaveRoom(false));
+        const onLeaveCallback = () => onLeaveRoom(false);
+        const leaveUnsub = room.onLeave(onLeaveCallback);
+        unsubs.push(() => leaveUnsub.remove(onLeaveCallback));
 
-        room.state.board.onChange((color: number, id: number) => {
+        unsubs.push(room.state.board.onChange((color: number, id: number) => {
             const x = id % 7;
             const y = Math.floor(id / 7);
             setGrid(prev => {
@@ -125,7 +131,17 @@ export default function Game({room, onLeaveRoom}: {
                 newGrid[y][x] = color;
                 return newGrid;
             });
-        });
+        }));
+
+        return () => {
+            unsubs.forEach((fn) => {
+                try {
+                    fn();
+                } catch {
+                    // ignore
+                }
+            });
+        };
     }, [room, onLeaveRoom]);
 
     const getName = (id: string) => {

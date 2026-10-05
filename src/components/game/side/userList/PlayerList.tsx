@@ -1,7 +1,6 @@
 import {colors} from "@/components/game/colors";
 import {useGameData} from "@/components/Game";
 import {Badge, Button} from "react-daisyui";
-import _ from "underscore";
 import {Crown, Hand} from "lucide-react";
 
 export function Player({name, color, colorId, clientIsPlayer, currentTurn}: {
@@ -41,7 +40,7 @@ export default function PlayerList() {
 
     return (
         <div className="grid grid-cols-2 gap-4 w-full">
-            {_.range(4).map(i =>
+            {Array.from({length: 4}, (_, i) =>
                 <Player key={i} name={players[i] === "" ? "" : getName(players[i])} color={colors[i]} colorId={i}
                         clientIsPlayer={players.includes(room.sessionId)} currentTurn={i === turn}/>)}
         </div>

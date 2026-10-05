@@ -1,6 +1,6 @@
 "use client";
 
-import {createContext, ReactNode, useContext, useState} from "react";
+import {createContext, ReactNode, useCallback, useContext, useState} from "react";
 import {Alert, Button, Toast} from "react-daisyui";
 import {LucideIcon, X} from "lucide-react";
 
@@ -23,13 +23,13 @@ export default function ToastProvider({children}: {
 
     const [alerts, setAlerts] = useState<AlertDataWithTimer[]>([]);
 
-    const addAlert = (data: AlertData) => {
+    const addAlert = useCallback((data: AlertData) => {
         const newData = data as AlertDataWithTimer;
         newData.timer = setTimeout(() => {
             setAlerts(prev => prev.filter(elt => elt !== newData));
         }, 5000);
         setAlerts(prev => [...prev, newData]);
-    }
+    }, [])
 
     return (
         <ToastContext.Provider value={addAlert}>

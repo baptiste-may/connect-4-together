@@ -1,7 +1,6 @@
 import Case from "@/components/game/content/Case";
 import {useEffect, useState} from "react";
 import {useGameData} from "@/components/Game";
-import _ from "underscore";
 
 export default function Grid() {
 
@@ -31,7 +30,7 @@ export default function Grid() {
             <div className="absolute left-0 top-0 grid grid-cols-7 w-full h-full" onMouseLeave={() => {
                 setSelectedColumn(null);
             }}>
-                {_.range(7).map(i =>
+                {Array.from({length: 7}, (_, i) =>
                     <div key={i} className="w-full h-full"
                          onMouseEnter={() => {
                              setSelectedColumn(i);
