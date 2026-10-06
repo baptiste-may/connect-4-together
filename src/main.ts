@@ -4,20 +4,31 @@ import { Server } from "colyseus";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import defineGameServer from "./server/server";
 import { monitor } from "@colyseus/monitor";
-import express from "express";
 import { createServer } from "node:http";
 import basicAuth from "express-basic-auth";
 import { v6 } from "uuid";
-import { listRooms } from "./server/rooms/registry";
+import { registerApiRoutes } from "./server/routes";
 
-const port = parseInt(process.env.PORT || "3000");
-const monitorUser = process.env.MONITOR_USER || v6();
-const monitorPassword = process.env.MONITOR_PASSWORD || v6();
-const dev = process.env.NODE_ENV !== "production";
-const nextApp = next({ dev });
-const handle = nextApp.getRequestHandler();
+/**
+ * Builds and starts the combined Next.js + Colyseus server on a single port:
+ * the Next request handler and the Colyseus WebSocket transport share one HTTP
+ * server, and the Express routes (`/api/rooms`, `/admin`) are mounted before
+ * the catch-all that forwards everything else to Next.
+ *
+ * @param port - Port to listen on. Defaults to `PORT` or `3000`.
+ * @returns The Colyseus server, once it is listening.
+ */
+export async function startServer(
+  port = parseInt(process.env.PORT || "3000"),
+): Promise<Server> {
+  const monitorUser = process.env.MONITOR_USER || v6();
+  const monitorPassword = process.env.MONITOR_PASSWORD || v6();
+  const dev = process.env.NODE_ENV !== "production";
+  const nextApp = next({ dev });
+  const handle = nextApp.getRequestHandler();
 
-nextApp.prepare().then(async () => {
+  await nextApp.prepare();
+
   const upgradeHandler = nextApp.getUpgradeHandler();
   const server = createServer();
 
@@ -35,11 +46,7 @@ nextApp.prepare().then(async () => {
     transport,
     devMode: dev,
     express: (app) => {
-      app.use(express.json());
-
-      app.get("/api/rooms", (_req, res) => {
-        res.json(listRooms());
-      });
+      registerApiRoutes(app);
 
       app.use(
         "/admin",
@@ -67,4 +74,13 @@ nextApp.prepare().then(async () => {
   console.log(
     `✅ Server listening at http://localhost:${port} as ${dev ? "development" : "production"}`,
   );
-});
+
+  return gameServer;
+}
+
+if (process.env.NODE_ENV !== "test") {
+  startServer().catch((error) => {
+    console.error("❌ Failed to start the server", error);
+    process.exit(1);
+  });
+}

@@ -97,12 +97,14 @@ export class NormalRoom extends Room<{ state: State }> {
     await this.setPrivate(false);
 
     this.onMessage("set-lock", async (client, value) => {
+      if (typeof value !== "boolean") return;
       if (client.sessionId !== this.state.host) return;
       await this.setPrivate(value);
       this.state.isPrivate = value;
     });
 
     this.onMessage("send-message", (client, message) => {
+      if (typeof message !== "string") return;
       let cleanedMessage = message;
       filter.loadDictionary("fr");
       cleanedMessage = filter.clean(cleanedMessage);
@@ -117,17 +119,18 @@ export class NormalRoom extends Room<{ state: State }> {
 
     this.onMessage("join-color", (client, message) => {
       const color = parseInt(message);
-      if (color > 4) return;
+      if (!Number.isInteger(color) || color < 0 || color > 3) return;
       if (this.state.players[color] !== "") return;
       if (this.state.players.includes(client.sessionId)) return;
       this.state.players[color] = client.sessionId;
       this.state.spectators.delete(client.sessionId);
+      if (this.state.players[this.state.turn] === "") this.newTurn();
     });
 
     this.onMessage("play-piece", (client, message) => {
       if (this.state.winner !== "") return;
       const column = parseInt(message);
-      if (column > 6) return;
+      if (!Number.isInteger(column) || column < 0 || column > 6) return;
       if (this.getNbPlayers() < 2) return;
       const index = this.state.players.indexOf(client.sessionId);
       if (index === -1) return;
@@ -138,22 +141,15 @@ export class NormalRoom extends Room<{ state: State }> {
     this.onMessage("vote-skip", (client) => {
       if (!this.state.players.includes(client.sessionId)) return;
       this.state.votedForSkip.add(client.sessionId);
-      if (this.state.votedForSkip.size >= this.getNbPlayers()) {
-        for (let i = 0; i < 7 * 6; i++) {
-          this.state.board[i] = -1;
-        }
-        this.state.votedForSkip.clear();
-        this.state.turn = -1;
-        this.state.winner = "";
-        this.newTurn();
-      }
+      this.applySkipVotes();
     });
 
-    this.onMessage("update-name", (client, message) => {
-      this.state.playerNames.set(
-        client.sessionId,
-        sanitizePlayerName(client, message),
-      );
+    this.onMessage("update-name", async (client, message) => {
+      const name = sanitizePlayerName(client, message);
+      this.state.playerNames.set(client.sessionId, name);
+      if (this.state.host === client.sessionId) {
+        await this.setMetadata({ host: name });
+      }
     });
 
     registerRoom(this);
@@ -204,12 +200,15 @@ export class NormalRoom extends Room<{ state: State }> {
         if (index === this.state.turn && this.state.winner === "")
           this.newTurn();
       }
+      this.applySkipVotes();
       if (this.state.host === client.sessionId) {
-        const players = this.state.players.filter((p) => p !== "");
-        this.state.host =
-          players.length > 0 ? players[0] : this.state.spectators.toArray()[0];
+        const candidates = [
+          ...this.state.players.filter((p) => p !== ""),
+          ...this.state.spectators.toArray(),
+        ];
+        this.state.host = candidates[0] ?? "";
         await this.setMetadata({
-          host: this.state.playerNames.get(this.state.host),
+          host: this.state.playerNames.get(this.state.host) ?? "",
         });
       }
     }
@@ -237,6 +236,23 @@ export class NormalRoom extends Room<{ state: State }> {
     this.state.board[i * 7 + column] = color;
     this.checkIfGameOver();
     if (this.state.winner === "") this.newTurn();
+  }
+
+  /**
+   * Resets the board when every remaining player voted to skip.
+   * Also re-run after a leave so the departing player's absence can satisfy
+   * the quorum on its own.
+   */
+  applySkipVotes() {
+    if (this.state.votedForSkip.size === 0) return;
+    if (this.state.votedForSkip.size < this.getNbPlayers()) return;
+    for (let i = 0; i < 7 * 6; i++) {
+      this.state.board[i] = -1;
+    }
+    this.state.votedForSkip.clear();
+    this.state.turn = -1;
+    this.state.winner = "";
+    this.newTurn();
   }
 
   /**

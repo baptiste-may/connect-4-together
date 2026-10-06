@@ -21,6 +21,22 @@ const eslintConfig = defineConfig([
       "react-hooks/set-state-in-effect": "warn",
     },
   },
+  {
+    files: ["tests/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        afterAll: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        beforeEach: "readonly",
+        describe: "readonly",
+        expect: "readonly",
+        it: "readonly",
+        jest: "readonly",
+        test: "readonly",
+      },
+    },
+  },
 ]);
 
 export default eslintConfig;

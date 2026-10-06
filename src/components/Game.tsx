@@ -1,5 +1,5 @@
 import { Callbacks } from "@colyseus/schema";
-import type { GameRoom } from "@/libs/room";
+import { type GameRoom, toGrid } from "@/libs/room";
 import Side from "@/components/game/Side";
 import Content from "@/components/game/Content";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -7,7 +7,7 @@ import Info from "@/components/game/Info";
 import { Button, Drawer, Indicator } from "react-daisyui";
 import { ChevronRight, X } from "lucide-react";
 
-const GameContext = createContext<
+export const GameContext = createContext<
   | undefined
   | {
       room: GameRoom;
@@ -122,8 +122,14 @@ export default function Game({
     unsubs.push(
       callbacks.onChange("playerNames", (id: string, name: string) =>
         setPlayerNames((prev) => {
+          // The decoder fires onChange(key, undefined) after onRemove on a
+          // deletion, which would otherwise leave a tombstone { id: undefined }.
           const newNames = { ...prev };
-          newNames[id] = name;
+          if (name === undefined) {
+            delete newNames[id];
+          } else {
+            newNames[id] = name;
+          }
           return newNames;
         }),
       ),
@@ -204,11 +210,21 @@ export default function Game({
         const y = Math.floor(index / 7);
         setGrid((prev) => {
           const newGrid = [...prev];
+          newGrid[y] = [...prev[y]];
           newGrid[y][x] = color;
           return newGrid;
         });
       }),
     );
+
+    // `onChange` has no immediate replay, and the join promise resolves on
+    // JOIN_ROOM — before the first ROOM_STATE packet. If this effect runs in
+    // between, `players` and `board` would stay at their unsynced defaults
+    // until the next server patch. Seed them from the state as it stands now.
+    setPlayers(
+      Array.from({ length: 4 }, (_, i) => room.state.players[i] ?? ""),
+    );
+    setGrid(toGrid(room.state.board));
 
     return () => {
       unsubs.forEach((fn) => {
