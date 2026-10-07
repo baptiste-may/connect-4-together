@@ -1,4 +1,4 @@
-import { CloseCode, Room, type Client } from "colyseus";
+import { CloseCode, Room, type Client } from "@colyseus/core";
 import {
   ArraySchema,
   MapSchema,

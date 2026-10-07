@@ -1,0 +1,30 @@
+{
+  // Cloudflare deployment of the Node process (Colyseus + Next.js export).
+  // Deploy manually: `bun run deploy:cf`.
+  "name": "connect-4-together",
+  "main": "src/server/cf/worker.ts",
+  "compatibility_date": "2026-08-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "GAME_DO",
+        "class_name": "GameServer",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["GameServer"],
+    },
+  ],
+  "observability": {
+    "enabled": true,
+  },
+}

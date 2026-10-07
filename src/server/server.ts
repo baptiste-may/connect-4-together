@@ -1,4 +1,4 @@
-import { Server } from "colyseus";
+import { Server } from "@colyseus/core";
 import { NormalRoom } from "@/server/rooms/NormalRoom";
 
 /**
