@@ -25,7 +25,9 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: customSetTheme }}>
-      <Theme dataTheme={theme}>{children}</Theme>
+      <Theme dataTheme={theme} className="min-h-screen bg-base-100">
+        {children}
+      </Theme>
     </ThemeContext.Provider>
   );
 }

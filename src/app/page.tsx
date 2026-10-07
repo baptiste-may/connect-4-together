@@ -27,7 +27,14 @@ import NameInput from "@/components/NameInput";
 import NameProvider, { useName } from "@/components/providers/NameProvider";
 import JoinForm from "@/components/JoinForm";
 
-const Game = dynamic(() => import("@/components/Game"), { ssr: false });
+const Game = dynamic(() => import("@/components/Game"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex min-h-screen items-center justify-center bg-base-100">
+      <Loading variant="dots" size="lg" />
+    </div>
+  ),
+});
 
 function PageWithHandler() {
   const alert = useToast();
@@ -68,6 +75,16 @@ function PageWithHandler() {
       .then(setCurrentRoom)
       .catch(() => localStorage.removeItem("reconnectionToken"));
   }, [client, isLoading, currentRoom]);
+
+  useEffect(() => {
+    const preload = () => void import("@/components/Game");
+    if (typeof window.requestIdleCallback !== "function") {
+      const timer = window.setTimeout(preload, 1000);
+      return () => window.clearTimeout(timer);
+    }
+    const handle = window.requestIdleCallback(preload);
+    return () => window.cancelIdleCallback(handle);
+  }, []);
 
   const onLeaveRoom = useCallback(
     (intentional: boolean) => {
