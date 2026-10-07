@@ -3,8 +3,8 @@
   // Deploy manually: `bun run deploy:cf`.
   "name": "connect-4-together",
   "main": "src/server/cf/worker.ts",
-  "compatibility_date": "2026-08-04",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["global_fetch_strictly_public"],
   "assets": {
     "directory": "./out",
     "binding": "ASSETS",
@@ -26,5 +26,19 @@
   ],
   "observability": {
     "enabled": true,
+  },
+  "vars": {
+    "NEXT_PUBLIC_GOOGLE_ANALYTICS_GA": "G-DN3WVRQPNX",
+    "SITE_URL": "https://connect-4-together.baptiste-may.workers.dev",
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "connect-4-together",
+      "environment": "production",
+    },
+  ],
+  "images": {
+    "binding": "IMAGES",
   },
 }
