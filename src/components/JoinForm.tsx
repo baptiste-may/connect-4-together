@@ -3,6 +3,7 @@ import { Button, Input, Join } from "react-daisyui";
 import { useToast } from "@/components/providers/ToastProvider";
 import { useName } from "@/components/providers/NameProvider";
 import { useClient } from "@/components/providers/ClientProvider";
+import { thrownErrorMessage } from "@/libs/errors";
 import { useState } from "react";
 import type { GameRoom, GameRoomState } from "@/libs/room";
 
@@ -30,10 +31,11 @@ export default function JoinForm({
           .then((room) => {
             setRoom(room);
           })
-          .catch(() => {
+          .catch((err) => {
             setInputError(true);
             alert({
               title: "La partie n'existe pas.",
+              subtitle: thrownErrorMessage(err),
               status: "error",
               Icon: ShieldQuestionMark,
             });

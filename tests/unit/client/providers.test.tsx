@@ -14,7 +14,12 @@ import NameProvider, { useName } from "@/components/providers/NameProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import NameInput from "@/components/NameInput";
-import { installFetchMock, jsonResponse, renderWithProviders } from "./harness";
+import {
+  errorResponse,
+  installFetchMock,
+  jsonResponse,
+  renderWithProviders,
+} from "./harness";
 
 /** Reports the connection state exposed by `ClientProvider`. */
 function ClientProbe() {
@@ -336,6 +341,31 @@ describe("ClientProvider", () => {
     await flushProbe();
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(screen.getAllByRole("alert")).toHaveLength(1);
+
+    await advanceFake(1000);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId("status")).toHaveTextContent("ready");
+  });
+
+  it("should show the server message when the room probe answers an error body", async () => {
+    const fetchMock = installFetchMock();
+    fetchMock
+      .mockResolvedValueOnce(
+        errorResponse(503, { error: "Base de données indisponible" }),
+      )
+      .mockResolvedValueOnce(jsonResponse([]));
+
+    renderWithProviders(
+      <ClientProvider>
+        <ClientProbe />
+      </ClientProvider>,
+    );
+
+    await flushProbe();
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Impossible de se connecter au serveur");
+    expect(alert).toHaveTextContent("Base de données indisponible");
 
     await advanceFake(1000);
     expect(fetchMock).toHaveBeenCalledTimes(2);

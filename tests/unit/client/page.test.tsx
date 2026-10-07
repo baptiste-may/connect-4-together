@@ -240,6 +240,27 @@ describe("Page", () => {
     expect(screen.getByTestId("game")).toBeInTheDocument();
   });
 
+  it("should report an error when joining a room from the list fails", async () => {
+    installFetchMock().mockResolvedValue(
+      jsonResponse([listing("ROOM01", "Bob")]),
+    );
+    sdkMock()
+      .joinById.mockReset()
+      .mockRejectedValueOnce(new Error('room "ROOM01" is locked'));
+
+    renderWithProviders(<Page />);
+    await settle();
+
+    const row = screen.getByText("Bob").closest("tr")!;
+    fireEvent.click(within(row).getByRole("button"));
+    await settle();
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Une erreur est survenue");
+    expect(alert).toHaveTextContent('room "ROOM01" is locked');
+    expect(screen.queryByTestId("game")).not.toBeInTheDocument();
+  });
+
   it("should join the room when a valid code is submitted", async () => {
     installFetchMock().mockResolvedValue(jsonResponse([]));
 

@@ -59,6 +59,31 @@ export function jsonResponse(body: unknown) {
 }
 
 /**
+ * Wraps an error payload in a minimal failed `fetch` response, the way a
+ * server or a reverse-proxy would answer before the probe gives up.
+ * @param status HTTP status code.
+ * @param body The payload returned by `res.json()` / `res.text()`.
+ * @param contentType Value of the `content-type` header.
+ * @returns A response-like object without a status text.
+ */
+export function errorResponse(
+  status: number,
+  body: unknown,
+  contentType = "application/json",
+): Response {
+  return {
+    ok: false,
+    status,
+    headers: {
+      get: (name: string) =>
+        name.toLowerCase() === "content-type" ? contentType : null,
+    },
+    json: async () => body,
+    text: async () => (typeof body === "string" ? body : JSON.stringify(body)),
+  } as unknown as Response;
+}
+
+/**
  * The value type of the `GameContext` the game sub-components read from.
  */
 export type GameData = NonNullable<ContextType<typeof GameContext>>;

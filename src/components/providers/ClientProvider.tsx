@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Client, type RoomAvailable } from "@colyseus/sdk";
 import { useToast } from "@/components/providers/ToastProvider";
+import { httpErrorMessage, thrownErrorMessage } from "@/libs/errors";
 import { CloudAlert } from "lucide-react";
 
 const PROBE_TIMEOUT_MS = 5000;
@@ -53,15 +54,13 @@ export default function ClientProvider({ children }: { children: ReactNode }) {
 
     const probe = () => {
       Promise.race([
-        fetch("/api/rooms").then((res) => {
-          if (!res.ok) throw new Error(`Unexpected status ${res.status}`);
-          return res.json() as Promise<RoomAvailable[]>;
+        fetch("/api/rooms").then(async (res) => {
+          if (!res.ok) throw new Error(await httpErrorMessage(res));
+          return (await res.json()) as RoomAvailable[];
         }),
         new Promise<never>((_, reject) => {
-          timeoutId = setTimeout(
-            () => reject(new Error("Connection probe timed out")),
-            PROBE_TIMEOUT_MS,
-          );
+          // Empty message: a local timeout says nothing the player can read.
+          timeoutId = setTimeout(() => reject(new Error()), PROBE_TIMEOUT_MS);
         }),
       ])
         .then((rooms) => {
@@ -69,13 +68,14 @@ export default function ClientProvider({ children }: { children: ReactNode }) {
           if (isCancelled) return;
           setConnection({ client, rooms });
         })
-        .catch(() => {
+        .catch((err) => {
           clearTimeout(timeoutId);
           if (isCancelled) return;
           if (!hasWarned) {
             hasWarned = true;
             alert({
               title: "Impossible de se connecter au serveur",
+              subtitle: thrownErrorMessage(err),
               status: "error",
               Icon: CloudAlert,
             });

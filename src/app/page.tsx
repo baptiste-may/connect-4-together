@@ -9,6 +9,7 @@ import ClientProvider, {
 } from "@/components/providers/ClientProvider";
 import { Button, Card, Divider, Hero, Loading, Table } from "react-daisyui";
 import { useToast } from "@/components/providers/ToastProvider";
+import { thrownErrorMessage } from "@/libs/errors";
 import {
   CircleX,
   Crown,
@@ -61,6 +62,18 @@ function PageWithHandler() {
       .then(setRefreshedRooms)
       .catch(() => undefined);
   }, [isLoading]);
+
+  const reportError = useCallback(
+    (err: unknown) => {
+      alert({
+        title: "Une erreur est survenue",
+        subtitle: thrownErrorMessage(err),
+        status: "error",
+        Icon: CircleX,
+      });
+    },
+    [alert],
+  );
 
   useEffect(() => {
     if (isLoading) return;
@@ -134,14 +147,7 @@ function PageWithHandler() {
                           isPrivate: true,
                         })
                         .then(setCurrentRoom)
-                        .catch((err) => {
-                          alert({
-                            title: "Une erreur est survenue",
-                            subtitle: err.message,
-                            status: "error",
-                            Icon: CircleX,
-                          });
-                        });
+                        .catch(reportError);
                     }}
                   >
                     <Plus />
@@ -165,14 +171,7 @@ function PageWithHandler() {
                           name: username,
                         })
                         .then(setCurrentRoom)
-                        .catch((err) => {
-                          alert({
-                            title: "Une erreur est survenue",
-                            subtitle: err.message,
-                            status: "error",
-                            Icon: CircleX,
-                          });
-                        });
+                        .catch(reportError);
                     }}
                   >
                     <Play />
@@ -223,7 +222,8 @@ function PageWithHandler() {
                                     .joinById<string, GameRoomState>(roomId, {
                                       name: username,
                                     })
-                                    .then(setCurrentRoom);
+                                    .then(setCurrentRoom)
+                                    .catch(reportError);
                                 }}
                               >
                                 <LogIn size={16} />
