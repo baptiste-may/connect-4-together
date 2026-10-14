@@ -3,7 +3,13 @@ import "./globals.css";
 import { ReactNode } from "react";
 import ToastProvider from "@/components/providers/ToastProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
-import { SITE_URL } from "@/libs/static";
+import {
+  SITE_URL,
+  UMAMI_DOMAINS,
+  UMAMI_SCRIPT_URL,
+  UMAMI_WEBSITE_ID,
+} from "@/libs/static";
+import UmamiProvider from "next-umami";
 
 const title = "Connect 4 Together";
 const description = "Puissance 4 jusqu'à 4 joueurs en simultanés !";
@@ -32,6 +38,14 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
+        {UMAMI_WEBSITE_ID !== "" && (
+          <UmamiProvider
+            websiteId={UMAMI_WEBSITE_ID}
+            src={UMAMI_SCRIPT_URL}
+            domains={UMAMI_DOMAINS}
+            performance
+          />
+        )}
         <ThemeProvider>
           <ToastProvider>{children}</ToastProvider>
         </ThemeProvider>

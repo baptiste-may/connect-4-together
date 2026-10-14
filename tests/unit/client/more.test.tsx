@@ -7,6 +7,24 @@ import More from "@/components/More";
 import type { GameRoom } from "@/libs/room";
 import { makeFakeRoom } from "./harness";
 
+jest.mock("next-umami", () => {
+  // A single shared tracker keeps hook identities (and `event`) stable across
+  // renders, matching the real `next-umami` hooks.
+  const umami = {
+    track: jest.fn(),
+    event: jest.fn(),
+    pageView: jest.fn(),
+    identify: jest.fn(),
+  };
+  return {
+    __esModule: true,
+    default: function UmamiProvider() {
+      return null;
+    },
+    useUmami: () => umami,
+  };
+});
+
 /**
  * Renders `More` the way the app mounts it: the root layout wraps everything
  * in `ThemeProvider` + `ToastProvider`, `page.tsx` adds `NameProvider`, then

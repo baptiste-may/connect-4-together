@@ -21,8 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import More from "@/components/More";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import { GOOGLE_ANALYTICS_GA } from "@/libs/static";
+import { useUmami } from "next-umami";
 import BMCButton from "@/components/BMCButton";
 import NameInput from "@/components/NameInput";
 import NameProvider, { useName } from "@/components/providers/NameProvider";
@@ -41,6 +40,7 @@ function PageWithHandler() {
   const alert = useToast();
   const { name: username } = useName();
   const { client, isLoading, rooms: initialRooms } = useClient();
+  const { event } = useUmami();
 
   const [currentRoom, setCurrentRoom] = useState<undefined | GameRoom>(
     undefined,
@@ -64,7 +64,8 @@ function PageWithHandler() {
   }, [isLoading]);
 
   const reportError = useCallback(
-    (err: unknown) => {
+    (context: string, err: unknown) => {
+      event("error", { context });
       alert({
         title: "Une erreur est survenue",
         subtitle: thrownErrorMessage(err),
@@ -72,7 +73,7 @@ function PageWithHandler() {
         Icon: CircleX,
       });
     },
-    [alert],
+    [alert, event],
   );
 
   useEffect(() => {
@@ -85,9 +86,21 @@ function PageWithHandler() {
     if (reconnectionToken === null) return;
     client
       .reconnect<GameRoomState>(reconnectionToken)
-      .then(setCurrentRoom)
-      .catch(() => localStorage.removeItem("reconnectionToken"));
-  }, [client, isLoading, currentRoom]);
+      .then((room) => {
+        event("reconnect", { success: true });
+        setCurrentRoom(room);
+      })
+      .catch(() => {
+        event("reconnect", { success: false });
+        localStorage.removeItem("reconnectionToken");
+      });
+  }, [client, isLoading, currentRoom, event]);
+
+  useEffect(() => {
+    event("view-change", {
+      view: currentRoom === undefined ? "lobby" : "game",
+    });
+  }, [currentRoom, event]);
 
   useEffect(() => {
     const preload = () => void import("@/components/Game");
@@ -102,6 +115,7 @@ function PageWithHandler() {
   const onLeaveRoom = useCallback(
     (intentional: boolean) => {
       if (currentRoom === undefined) return;
+      event("leave-room", { intentional });
       currentRoom.removeAllListeners();
       const backToHomepage = () => {
         setCurrentRoom(undefined);
@@ -112,7 +126,7 @@ function PageWithHandler() {
         currentRoom.leave().then(backToHomepage);
       } else backToHomepage();
     },
-    [currentRoom, updateRooms],
+    [currentRoom, updateRooms, event],
   );
 
   return (
@@ -146,14 +160,25 @@ function PageWithHandler() {
                           name: username,
                           isPrivate: true,
                         })
-                        .then(setCurrentRoom)
-                        .catch(reportError);
+                        .then((room) => {
+                          event("create-room");
+                          setCurrentRoom(room);
+                        })
+                        .catch((err) => reportError("create-room", err));
                     }}
                   >
                     <Plus />
                     Créer une partie
                   </Button>
-                  <JoinForm setRoom={setCurrentRoom} />
+                  <JoinForm
+                    setRoom={(room) => {
+                      event("join-room", { method: "code" });
+                      setCurrentRoom(room);
+                    }}
+                    onError={() =>
+                      event("error", { context: "join-room-code" })
+                    }
+                  />
                 </div>
                 <Divider className="my-2 flex" />
                 <Card.Title className="flex justify-center">
@@ -170,8 +195,11 @@ function PageWithHandler() {
                         .joinOrCreate<"Normal", GameRoomState>("Normal", {
                           name: username,
                         })
-                        .then(setCurrentRoom)
-                        .catch(reportError);
+                        .then((room) => {
+                          event("join-room", { method: "random" });
+                          setCurrentRoom(room);
+                        })
+                        .catch((err) => reportError("join-room-random", err));
                     }}
                   >
                     <Play />
@@ -222,8 +250,13 @@ function PageWithHandler() {
                                     .joinById<string, GameRoomState>(roomId, {
                                       name: username,
                                     })
-                                    .then(setCurrentRoom)
-                                    .catch(reportError);
+                                    .then((room) => {
+                                      event("join-room", { method: "list" });
+                                      setCurrentRoom(room);
+                                    })
+                                    .catch((err) =>
+                                      reportError("join-room-list", err),
+                                    );
                                 }}
                               >
                                 <LogIn size={16} />
@@ -251,7 +284,6 @@ function PageWithHandler() {
 export default function Page() {
   return (
     <>
-      <GoogleAnalytics gaId={GOOGLE_ANALYTICS_GA} />
       <ClientProvider>
         <NameProvider>
           <PageWithHandler />

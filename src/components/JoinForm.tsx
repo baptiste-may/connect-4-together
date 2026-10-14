@@ -9,8 +9,10 @@ import type { GameRoom, GameRoomState } from "@/libs/room";
 
 export default function JoinForm({
   setRoom,
+  onError,
 }: {
   setRoom: (room: GameRoom) => void;
+  onError?: () => void;
 }) {
   const alert = useToast();
   const { name } = useName();
@@ -32,6 +34,7 @@ export default function JoinForm({
             setRoom(room);
           })
           .catch((err) => {
+            onError?.();
             setInputError(true);
             alert({
               title: "La partie n'existe pas.",

@@ -2,6 +2,7 @@ import { colors } from "@/components/game/colors";
 import { useGameData } from "@/components/Game";
 import { Badge, Button } from "react-daisyui";
 import { Crown, Hand } from "lucide-react";
+import { useUmami } from "next-umami";
 
 export function Player({
   name,
@@ -17,6 +18,7 @@ export function Player({
   currentTurn: boolean;
 }) {
   const { room, winner } = useGameData();
+  const { event } = useUmami();
 
   if (name === "")
     return (
@@ -24,6 +26,7 @@ export function Player({
         size="sm"
         className={`hover:btn-neutral border-${color} hover:border-${color} bg-${color} hover:bg-${color} w-full`}
         onClick={() => {
+          event("join-color", { color: colorId });
           room.send("join-color", colorId);
         }}
         disabled={clientIsPlayer}

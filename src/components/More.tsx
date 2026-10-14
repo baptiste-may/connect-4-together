@@ -7,10 +7,12 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import type { GameRoom } from "@/libs/room";
 import { useName } from "@/components/providers/NameProvider";
 import { currentVersion } from "@/libs/static";
+import { useUmami } from "next-umami";
 
 export default function More({ room }: { room?: GameRoom }) {
   const { name, setName } = useName();
   const { theme, setTheme } = useTheme();
+  const { event } = useUmami();
 
   const [isOpen, setIsOpen] = useState(false);
   const [nameInput, setNameInput] = useState(name);
@@ -28,7 +30,10 @@ export default function More({ room }: { room?: GameRoom }) {
       <Button
         color="neutral"
         shape="square"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          event("settings-open");
+          setIsOpen(true);
+        }}
         className="fixed right-0 top-0 z-50 m-2"
       >
         <EllipsisVertical />
@@ -56,6 +61,7 @@ export default function More({ room }: { room?: GameRoom }) {
             onSubmit={(e) => {
               e.preventDefault();
               if (nameInput === "") return;
+              event("update-name");
               setName(nameInput);
               if (room === undefined) return;
               room.send("update-name", nameInput);
@@ -85,7 +91,13 @@ export default function More({ room }: { room?: GameRoom }) {
             <label className="label">
               <span className="label-text">Votre thème</span>
             </label>
-            <Select value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <Select
+              value={theme}
+              onChange={(e) => {
+                event("theme-change", { theme: e.target.value });
+                setTheme(e.target.value);
+              }}
+            >
               <Select.Option value="retro">Par défaut</Select.Option>
               <Select.Option value="dark">Dark mode</Select.Option>
               <Select.Option value="light">Light mode</Select.Option>
@@ -105,11 +117,21 @@ export default function More({ room }: { room?: GameRoom }) {
               </address>
             </div>
             <div className="flex justify-center gap-1">
-              <Link hover={false} href="/legal-notice" target="_blank">
+              <Link
+                hover={false}
+                href="/legal-notice"
+                target="_blank"
+                onClick={() => event("legal-open", { page: "legal-notice" })}
+              >
                 Mentions légales
               </Link>
               ·
-              <Link hover={false} href="/privacy-policy" target="_blank">
+              <Link
+                hover={false}
+                href="/privacy-policy"
+                target="_blank"
+                onClick={() => event("legal-open", { page: "privacy-policy" })}
+              >
                 Politique de confidentialité
               </Link>
             </div>

@@ -2,10 +2,11 @@ import { Callbacks } from "@colyseus/schema";
 import { type GameRoom, toGrid } from "@/libs/room";
 import Side from "@/components/game/Side";
 import Content from "@/components/game/Content";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Info from "@/components/game/Info";
 import { Button, Drawer, Indicator } from "react-daisyui";
 import { ChevronRight, X } from "lucide-react";
+import { useUmami } from "next-umami";
 
 export const GameContext = createContext<
   | undefined
@@ -68,6 +69,9 @@ export default function Game({
 
   const [chatRoomId, setChatRoomId] = useState(room.roomId);
 
+  const { event } = useUmami();
+  const hadPieces = useRef(false);
+
   // Reset the chat during render when the room changes, instead of clearing it
   // inside the subscription effect (which would cause a cascading render).
   if (chatRoomId !== room.roomId) {
@@ -85,8 +89,24 @@ export default function Game({
     unsubs.push(
       callbacks.listen("turn", (value: number) => setTurn(value), true),
     );
+    // Report a finished game once per win, without leaking the winner's id.
+    // The immediate replay is skipped so a winner restored on reconnect (or
+    // after a remount) is not reported a second time.
+    let isInitialWinner = true;
     unsubs.push(
-      callbacks.listen("winner", (value: string) => setWinner(value), true),
+      callbacks.listen(
+        "winner",
+        (value: string) => {
+          setWinner(value);
+          if (isInitialWinner) {
+            isInitialWinner = false;
+            return;
+          }
+          if (value !== "")
+            event("game-won", { youWon: value === room.sessionId });
+        },
+        true,
+      ),
     );
     unsubs.push(
       callbacks.listen(
@@ -235,7 +255,19 @@ export default function Game({
         }
       });
     };
-  }, [room, onLeaveRoom]);
+  }, [room, onLeaveRoom, event]);
+
+  // Report a board reset (skip votes) once the grid empties after having been
+  // played on. The initial all-empty grid on mount must not count.
+  useEffect(() => {
+    const isEmpty = grid.every((row) => row.every((cell) => cell === -1));
+    if (!isEmpty) {
+      hadPieces.current = true;
+      return;
+    }
+    if (hadPieces.current) event("game-reset");
+    hadPieces.current = false;
+  }, [grid, event]);
 
   const getName = (id: string) => {
     if (playerNames.hasOwnProperty(id)) return playerNames[id];

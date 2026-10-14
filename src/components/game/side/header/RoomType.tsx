@@ -1,9 +1,11 @@
 import { useGameData } from "@/components/Game";
 import { Lock, LockOpen } from "lucide-react";
 import { Button } from "react-daisyui";
+import { useUmami } from "next-umami";
 
 export default function RoomType() {
   const { room, isPrivate, host } = useGameData();
+  const { event } = useUmami();
 
   return (
     <h1 className="card-title">
@@ -13,7 +15,10 @@ export default function RoomType() {
           color={isPrivate ? "warning" : "success"}
           shape="square"
           size="sm"
-          onClick={() => room.send("set-lock", !isPrivate)}
+          onClick={() => {
+            event("toggle-lock", { locked: !isPrivate });
+            room.send("set-lock", !isPrivate);
+          }}
         >
           {isPrivate ? <Lock /> : <LockOpen />}
         </Button>

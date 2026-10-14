@@ -1,16 +1,21 @@
 import { Button, Join } from "react-daisyui";
 import { useGameData } from "@/components/Game";
 import { RotateCw } from "lucide-react";
+import { useUmami } from "next-umami";
 
 export default function SkipButton() {
   const { room, nbPlayers, votedForSkip, players } = useGameData();
+  const { event } = useUmami();
 
   return (
     <Join>
       <Button
         color="neutral"
         className="join-item grow"
-        onClick={() => room.send("vote-skip")}
+        onClick={() => {
+          event("vote-skip");
+          room.send("vote-skip");
+        }}
         disabled={
           votedForSkip.has(room.sessionId) || !players.includes(room.sessionId)
         }
