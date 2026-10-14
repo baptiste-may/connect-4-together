@@ -1,11 +1,11 @@
 import { useGameData } from "@/components/Game";
 import { Lock, LockOpen } from "lucide-react";
 import { Button } from "react-daisyui";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export default function RoomType() {
   const { room, isPrivate, host } = useGameData();
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   return (
     <h1 className="card-title">

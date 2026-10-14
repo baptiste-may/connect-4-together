@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export default function BMCButton() {
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   return (
     <a

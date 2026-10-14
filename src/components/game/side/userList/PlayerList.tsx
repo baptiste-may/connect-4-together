@@ -2,7 +2,7 @@ import { colors } from "@/components/game/colors";
 import { useGameData } from "@/components/Game";
 import { Badge, Button } from "react-daisyui";
 import { Crown, Hand } from "lucide-react";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export function Player({
   name,
@@ -18,7 +18,7 @@ export function Player({
   currentTurn: boolean;
 }) {
   const { room, winner } = useGameData();
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   if (name === "")
     return (

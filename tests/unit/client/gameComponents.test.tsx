@@ -1,5 +1,5 @@
 import { fireEvent, screen, within } from "@testing-library/react";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import Grid from "@/components/game/content/Grid";
 import Info from "@/components/game/Info";
 import Chat from "@/components/game/side/Chat";
@@ -12,24 +12,6 @@ import PlayerList from "@/components/game/side/userList/PlayerList";
 import SpectatorList from "@/components/game/side/userList/SpectatorList";
 import { colors } from "@/components/game/colors";
 import { makeGameData, renderWithGame } from "./harness";
-
-jest.mock("next-umami", () => {
-  // A single shared tracker keeps hook identities (and `event`) stable across
-  // renders, matching the real `next-umami` hooks.
-  const umami = {
-    track: jest.fn(),
-    event: jest.fn(),
-    pageView: jest.fn(),
-    identify: jest.fn(),
-  };
-  return {
-    __esModule: true,
-    default: function UmamiProvider() {
-      return null;
-    },
-    useUmami: () => umami,
-  };
-});
 
 describe("colors", () => {
   it("should list one class per player color when colors are provided", () => {

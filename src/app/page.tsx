@@ -21,7 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import More from "@/components/More";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 import BMCButton from "@/components/BMCButton";
 import NameInput from "@/components/NameInput";
 import NameProvider, { useName } from "@/components/providers/NameProvider";
@@ -40,7 +40,7 @@ function PageWithHandler() {
   const alert = useToast();
   const { name: username } = useName();
   const { client, isLoading, rooms: initialRooms } = useClient();
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   const [currentRoom, setCurrentRoom] = useState<undefined | GameRoom>(
     undefined,

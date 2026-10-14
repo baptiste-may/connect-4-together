@@ -1,11 +1,11 @@
 import { Button, Join } from "react-daisyui";
 import { useGameData } from "@/components/Game";
 import { RotateCw } from "lucide-react";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export default function SkipButton() {
   const { room, nbPlayers, votedForSkip, players } = useGameData();
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   return (
     <Join>

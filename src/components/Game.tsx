@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Info from "@/components/game/Info";
 import { Button, Drawer, Indicator } from "react-daisyui";
 import { ChevronRight, X } from "lucide-react";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export const GameContext = createContext<
   | undefined
@@ -69,7 +69,7 @@ export default function Game({
 
   const [chatRoomId, setChatRoomId] = useState(room.roomId);
 
-  const { event } = useUmami();
+  const { event } = useAnalytics();
   const hadPieces = useRef(false);
 
   // Reset the chat during render when the room changes, instead of clearing it

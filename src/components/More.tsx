@@ -7,12 +7,12 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import type { GameRoom } from "@/libs/room";
 import { useName } from "@/components/providers/NameProvider";
 import { currentVersion } from "@/libs/static";
-import { useUmami } from "next-umami";
+import { useAnalytics } from "@/libs/analytics";
 
 export default function More({ room }: { room?: GameRoom }) {
   const { name, setName } = useName();
   const { theme, setTheme } = useTheme();
-  const { event } = useUmami();
+  const { event } = useAnalytics();
 
   const [isOpen, setIsOpen] = useState(false);
   const [nameInput, setNameInput] = useState(name);

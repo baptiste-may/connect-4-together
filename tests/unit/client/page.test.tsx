@@ -83,24 +83,6 @@ jest.mock("@/components/Game", () => {
   };
 });
 
-jest.mock("next-umami", () => {
-  // A single shared tracker keeps hook identities (and `event`) stable across
-  // renders, matching the real `next-umami` hooks.
-  const umami = {
-    track: jest.fn(),
-    event: jest.fn(),
-    pageView: jest.fn(),
-    identify: jest.fn(),
-  };
-  return {
-    __esModule: true,
-    default: function UmamiProvider() {
-      return null;
-    },
-    useUmami: () => umami,
-  };
-});
-
 type ClientMock = {
   create: jest.Mock<
     (name: string, options: Record<string, unknown>) => Promise<unknown>
